@@ -1,23 +1,24 @@
 import random
 from django.http import HttpResponse
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import authenticate, login, logout
 from django.http import Http404
 from order.models import Cart, ShopCart
-
 from order.views import _cart_id
 from .forms import SignupForm
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
-# Create your views here.
+
+
+# User signup area
 class Signup(View):
-    def get(self,request):
+    def get(self, request):
         return render(request, "signup.html")
         
-    def post(self,request):
+    def post(self, request):
         if request.method == 'POST':
             form = SignupForm(request.POST)
             if form.is_valid():
@@ -25,9 +26,11 @@ class Signup(View):
                 messages.success(request, 'Your account has been created!')
                 return redirect('/')
             else:
-                messages.warning(request,form.errors)
+                messages.warning(request, form.errors)
                 return redirect('/user/signup/')
 
+
+# User login area and checking cart item
 @method_decorator(never_cache, name='dispatch')       
 class Login(View):
     def get(self, request):
@@ -37,7 +40,6 @@ class Login(View):
         if request.method == 'POST':
             name = request.POST.get('name')
             password = request.POST.get('password')
-            
             
             if name.strip() == '' or password.strip() == '':
                 messages.warning(request, 'Please fill in all required fields.')
@@ -65,14 +67,15 @@ class Login(View):
                         for rs in products:
                             if rs in exist_products:
                                 cart_item = ShopCart.objects.get(user=user)
-                                cart_item.quantity +=1
+                                cart_item.quantity += 1
                                 cart_item.cart_item = cart
                                 cart_item.save()
                             else:
                                 cart_item = ShopCart.objects.filter(cart_item=cart)
                                 for item in cart_item:
                                     item.user = user
-                                    item.save()         
+                                    item.save()        
+                                     
                 except:
                     pass        
                 login(request, user)
@@ -83,13 +86,12 @@ class Login(View):
                 return redirect('/')
 
         raise Http404("Page not found") 
- 
-   
+
+
+
+# User logout and using never cache 
 @method_decorator(never_cache, name='dispatch')          
 class Logout(View):
-    def get(self,request):
+    def get(self, request):
         logout(request)
         return redirect('/')
-                
-            
-        

@@ -70,6 +70,10 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'home.context_processor.footer_data',
+                'home.context_processor.header_data',
+                'home.context_processor.banners_images',
+                'home.context_processor.shopcart_details',
+                
             ],
         },
     },

@@ -7,12 +7,16 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 
 # Create your views here.
+
+# Function to get the cart id from the session
 def _cart_id(request):
     cart = request.session.session_key
     if not cart:
         cart = request.session.create()
     return cart
 
+
+# View for displaying the shopping cart
 class ShopyCart(View):
     def get(self,request):
         current_user = request.user
@@ -32,7 +36,7 @@ class ShopyCart(View):
 
   
   
-  
+# View for adding a product to the shopping cart  
 class AddToCart(View):  
     def get(self,request,id):
         return render(request,'cart.html')
@@ -72,10 +76,7 @@ class AddToCart(View):
                     new_item.product=product
                     new_item.quantity=1
                     new_item.save()
-                    return redirect('/order/shopcart/') 
-                  
-                
-                
+                    return redirect('/order/shopcart/')       
         else:
             return self.get(request,id)    
             

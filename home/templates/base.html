@@ -15,8 +15,10 @@
 		<!-- Place favicon.ico in the root directory -->
 
 		<!-- Google Font -->
-		<link href='../../../fonts.googleapis.com/css716c.css?family=Lato:400,700,900' rel='stylesheet' type='text/css'>
-		<link href='../../../fonts.googleapis.com/css9245.css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+<!-- Google Font -->
+		<link href='https://fonts.googleapis.com/css?family=Lato:400,700,900' rel='stylesheet' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+
 
 		<!-- all css here -->
 		<!-- bootstrap v3.3.6 css -->
@@ -46,6 +48,8 @@
 		<link rel="stylesheet" href="{% static 'css/responsive.css'%}">
 		<!-- modernizr css -->
 		<script src="{% static 'js/vendor/modernizr-3.11.2.min.js'%}"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11">
+
 	</head>
 	<body>
         <div class="wrapper">
@@ -53,35 +57,91 @@
             {%block body%}{%endblock%}
             {%block footer%}{%endblock%}
         </div>
-
-				<!-- jquery latest version -->
-				<script src="{% static 'js/vendor/jquery-3.6.0.min.js'%}"></script>
-				<script src="{% static 'js/vendor/jquery-migrate-3.3.2.min.js'%}"></script>
-				<!-- bootstrap js -->
-				<script src="{% static 'js/bootstrap.bundle.min.js'%}"></script>
-				<!-- jquery.meanmenu js -->
-				<script src="{% static 'js/jquery.meanmenu.js'%}"></script>
-				<!-- slick.min js -->
-				<script src="{% static 'js/slick.min.js'%}"></script>
-				<!-- jquery.treeview js -->
-				<script src="{% static 'js/jquery.treeview.js'%}"></script>
-				<!-- lightbox.min js -->
-				<script src="{% static 'js/lightbox.min.js'%}"></script>
-				<!-- jquery-ui js -->
-				<script src="{% static 'js/jquery-ui.min.js'%}"></script>
-				<!-- jquery.nivo.slider js -->
-				<script src="{% static 'lib/js/jquery.nivo.slider.js'%}"></script>
-				<script src="{% static 'lib/home.js'%}"></script>
-				<!-- jquery.nicescroll.min js -->
-				<script src="{% static 'js/jquery.nicescroll.min.js'%}"></script>
-				<!-- countdon.min js -->
-				<script src="{% static 'js/countdon.min.js'%}"></script>
-				<!-- wow js -->
-				<script src="{% static 'js/wow.min.js'%}"></script>
-				<!-- plugins js -->
-				<script src="{% static 'js/plugins.js'%}"></script>
-				<!-- main js -->
-				<script src="{% static 'js/main.min.js'%}"></script>
+		{%block javascript%}{%endblock%}
+<!-- jquery latest version -->
+<script src="{% static 'js/vendor/jquery-3.6.0.min.js'%}"></script>
+<script src="{% static 'js/vendor/jquery-migrate-3.3.2.min.js'%}"></script>
+<!-- bootstrap js -->
+<script src="{% static 'js/bootstrap.bundle.min.js'%}"></script>
+<!-- jquery.meanmenu js -->
+<script src="{% static 'js/jquery.meanmenu.js'%}"></script>
+<!-- slick.min js -->
+<script src="{% static 'js/slick.min.js'%}"></script>
+<!-- jquery.treeview js -->
+<script src="{% static 'js/jquery.treeview.js'%}"></script>
+<!-- lightbox.min js -->
+<script src="{% static 'js/lightbox.min.js'%}"></script>
+<!-- jquery-ui js -->
+<script src="{% static 'js/jquery-ui.min.js'%}"></script>
+<!-- jquery.nivo.slider js -->
+<script src="{% static 'lib/js/jquery.nivo.slider.js'%}"></script>
+<script src="{% static 'lib/home.js'%}"></script>
+<!-- jquery.nicescroll.min js -->
+<script src="{% static 'js/jquery.nicescroll.min.js'%}"></script>
+<!-- countdon.min js -->
+<script src="{% static 'js/countdon.min.js'%}"></script>
+<!-- wow js -->
+<script src="{% static 'js/wow.min.js'%}"></script>
+<!-- plugins js -->
+<script src="{% static 'js/plugins.js'%}"></script>
+<!-- main js -->
+<script src="{% static 'js/main.min.js'%}"></script>
+<!-- SweetAlert2 script -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% if messages %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      {% for message in messages %}
+        {% if message.tags %}
+          {% if 'error' in message.tags %}
+            Swal.fire({
+              icon: "error",   
+              toast: true,
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+              html: '<span style="color: red;">😢</span> {{ message }}', 
+              didOpen: (toast) => {
+                toast.addEventListener("mouseenter", Swal.stopTimer);
+                toast.addEventListener("mouseleave", Swal.resumeTimer);
+              }
+            });
+          {% elif 'success' in message.tags %}
+            Swal.fire({
+              icon: "success",
+              toast: true,
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+              html: '<span>👋</span> {{ message }}',
+              didOpen: (toast) => {
+                toast.addEventListener("mouseenter", Swal.stopTimer);
+                toast.addEventListener("mouseleave", Swal.resumeTimer);
+              }
+            });
+			{% elif 'warning' in message.tags %}
+            Swal.fire({
+              icon: "success",
+              toast: true,
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+              html: '<span>👋</span> {{ message }}',
+              didOpen: (toast) => {
+                toast.addEventListener("mouseenter", Swal.stopTimer);
+                toast.addEventListener("mouseleave", Swal.resumeTimer);
+              }
+            });
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    });
+  </script>
+  
+{% endif %}
 </body>
 
 <!-- Mirrored from template.hasthemes.com/hurst-v1/hurst/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 22 Dec 2023 10:51:44 GMT -->

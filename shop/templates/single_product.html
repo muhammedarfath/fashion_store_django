@@ -76,18 +76,24 @@
 									</div>
 									<!-- color end -->
 									<!-- Size start -->
-									<div class="size-filter single-pro-size mb-35 clearfix">
-										<ul>
-											<li><span class="color-title text-capitalize">size</span></li>
-											{% for size in product_sizes %}
-												<li>
-													<a href="?size_id={{ size.id }}" class="{% if selected_size_id == size.id %}active{% endif %}">
-														{{ size.name }}
-													</a>
-												</li>
-											{% endfor %}
-										</ul>
-									</div>
+								
+										<div class="dropdown">
+											<div class=" dropdown-width" >
+												<aside class="widget widget-size">
+													<div class="widget-info size-filter clearfix">
+														<ul>
+															<li><span style="margin-left: -25px;" class="color-title text-capitalize">size</span></li>
+															{% for size in product_sizes %}
+															<li><a class="active" href="?size_id={{ size.id }}">{{size.code}}</a></li>
+															{% endfor %}
+	
+														</ul>
+													</div>
+												</aside>
+												<!-- Widget-Size end -->
+											</div>
+										</div>	
+									
 									<!-- Size end -->
 									<div class="clearfix">
 										<div class="quick-add-to-cart">

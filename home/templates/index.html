@@ -394,10 +394,11 @@
 								<div class="tab-pane active" id="new-arrivals">
 									<div class="row">
 										<!-- Single-product start -->
+										{% for pro in product %}
 										<div class="single-product col-xl-3 col-lg-4 col-md-6">
 											<div class="product-img">
 												<span class="pro-label new-label">new</span>
-												<a href="single-product.html"><img src="{% static 'img/product/5.jpg' %}" alt="" /></a>
+												<a href="single-product.html"><img style="width:270px;height:270px;" src="{{ pro.image.url }}" alt="" /></a>
 												<div class="product-action clearfix">
 													<a href="wishlist.html" data-bs-toggle="tooltip" data-placement="top" title="Wishlist"><i class="zmdi zmdi-favorite-outline"></i></a>
 													<a href="#" data-bs-toggle="modal"  data-bs-target="#productModal" title="Quick View"><i class="zmdi zmdi-zoom-in"></i></a>
@@ -407,11 +408,11 @@
 											</div>
 											<div class="product-info clearfix">
 												<div class="fix">
-													<h4 class="post-title floatleft"><a href="#">dummy Product name</a></h4>
-													<p class="floatright hidden-sm">Furniture</p>
+													<h4 class="post-title floatleft"><a href="#">{{ pro.title }}</a></h4>
+													<p class="floatright hidden-sm">{{ pro.product.category }}</p>
 												</div>
 												<div class="fix">
-													<span class="pro-price floatleft">$ 56.20</span>
+													<span class="pro-price floatleft">$ {{pro.sale_price}}</span>
 													<span class="pro-rating floatright">
 														<a href="#"><i class="zmdi zmdi-star"></i></a>
 														<a href="#"><i class="zmdi zmdi-star"></i></a>
@@ -422,6 +423,7 @@
 												</div>
 											</div>
 										</div>
+										{% endfor %}
 										<!-- Single-product end -->
 									</div>
 								</div>
