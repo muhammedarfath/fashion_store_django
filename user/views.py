@@ -6,6 +6,9 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
 from django.http import Http404
+from order.models import Cart, ShopCart
+
+from order.views import _cart_id
 from .forms import SignupForm
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
@@ -43,6 +46,35 @@ class Login(View):
             user = authenticate(request, username=name, password=password)
             
             if user is not None:
+                try:
+                    cart = Cart.objects.get(cart_id=_cart_id(request))
+                    is_cart_item_exists = ShopCart.objects.filter(cart_item=cart).exists()
+                    if is_cart_item_exists:
+                        cart_item = ShopCart.objects.filter(cart_item=cart)
+                        products = []
+                        exist_products = []
+                        for pro in cart_item:
+                            product = pro.product
+                            products.append(product)
+                            
+                        cart_item = ShopCart.objects.filter(user=user)
+                        for pro in cart_item:
+                            product = pro.product
+                            exist_products.append(product)
+                            
+                        for rs in products:
+                            if rs in exist_products:
+                                cart_item = ShopCart.objects.get(user=user)
+                                cart_item.quantity +=1
+                                cart_item.cart_item = cart
+                                cart_item.save()
+                            else:
+                                cart_item = ShopCart.objects.filter(cart_item=cart)
+                                for item in cart_item:
+                                    item.user = user
+                                    item.save()         
+                except:
+                    pass        
                 login(request, user)
                 messages.success(request, 'Login successful')
                 return redirect('/')

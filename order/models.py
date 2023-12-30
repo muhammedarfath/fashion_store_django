@@ -9,11 +9,14 @@ class Cart(models.Model):
 
 
 class ShopCart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     cart_item = models.ForeignKey(Cart, on_delete=models.CASCADE, null=True, default=None)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     quantity = models.IntegerField()
     
-    def __str__(self) -> str:
-        return self.user.username   
+    def __str__(self):
+        if self.user:
+            return f"Cart for {self.user.username}"
+        else:
+            return "Cart for unknown user"
     
