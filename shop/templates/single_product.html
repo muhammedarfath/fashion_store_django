@@ -79,17 +79,22 @@
 									<div class="size-filter single-pro-size mb-35 clearfix">
 										<ul>
 											<li><span class="color-title text-capitalize">size</span></li>
-											<li><a href="#">M</a></li>
-											<li><a class="active" href="#">S</a></li>
-											<li><a href="#">L</a></li>
-											<li><a href="#">SL</a></li>
-											<li><a href="#">XL</a></li>
+											{% for size in product_sizes %}
+												<li>
+													<a href="?size_id={{ size.id }}" class="{% if selected_size_id == size.id %}active{% endif %}">
+														{{ size.name }}
+													</a>
+												</li>
+											{% endfor %}
 										</ul>
 									</div>
 									<!-- Size end -->
 									<div class="clearfix">
-										<div class="cart-plus-minus">
-											<input type="text" value="02" name="qtybutton" class="cart-plus-minus-box">
+										<div class="quick-add-to-cart">
+											<form action="{% url 'order:addtocart' product.id %}" method="post" class="cart">
+												{% csrf_token %}
+												<button class="single_add_to_cart_button" type="submit">Add to cart</button>
+											</form>
 										</div>
 										<div class="product-action clearfix">
 											<a href="wishlist.html" data-bs-toggle="tooltip" data-placement="top" title="Wishlist"><i class="zmdi zmdi-favorite-outline"></i></a>

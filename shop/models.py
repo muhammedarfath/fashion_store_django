@@ -59,7 +59,7 @@ class Product(models.Model):
     quantity = models.IntegerField(default=1)
     slug = AutoSlugField(null=False, unique=True, populate_from='title')
     color = models.ForeignKey(Color, on_delete=models.CASCADE, blank=True, null=True)
-    size = models.ForeignKey(Size, on_delete=models.CASCADE, blank=True, null=True)
+    size = models.ManyToManyField(Size, blank=True, null=True)
     image_types = models.ManyToManyField(Images, blank=True)
     status = models.CharField(max_length=10, choices=STATUS)
     is_deleted = models.BooleanField(default=False)

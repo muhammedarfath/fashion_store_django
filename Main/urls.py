@@ -10,6 +10,7 @@ urlpatterns = [
     path('user/', include('user.urls')),
     path('shop/', include('shop.urls')),
     path('adminpanel/', include('adminpanel.urls')),
+    path('order/', include('order.urls')),
 ]
 
 # Serve static and media files during development for debugging purposes.
