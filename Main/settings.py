@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
-
+from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-w0)n5v=ybpd5@razz##d8lgs58w58hq#o&nh^#n)k-hkni0n)_'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG',default=False,cast=bool)
 
 ALLOWED_HOSTS = ['*']
 
@@ -82,14 +82,13 @@ WSGI_APPLICATION = 'Main.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'coloshop',
-        'USER': 'postgres',
-        'PASSWORD': 'coloshop123',
-        'HOST': 'database-1.cdiuiq0yyfus.ap-southeast-2.rds.amazonaws.com',
-        'PORT': '5432'
+        'NAME':config('name'),
+        'USER':config('user'),
+        'PASSWORD':config('pass'),
+        'HOST':config('host'),
+        'PORT': '5432',         
     }
 }
-
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -131,8 +130,12 @@ STATICFILES_DIRS = [
     
 ]
 
-MEDIA_URL = '/uploads/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR /'media'
+MEDIAFILES_DIRS = [
+    'Main/media'
+    
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

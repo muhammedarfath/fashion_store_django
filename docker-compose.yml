@@ -1,6 +1,19 @@
 version: '3'
 
 services:
+
+  web_databse:
+    image: postgres:latest
+    container_name: fashion_database
+    environment:
+      POSTGRES_DB: fashion_shop
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  
+    
   web:
     build: .
     container_name: webshop
@@ -9,12 +22,11 @@ services:
       - .:/Main
     ports:
       - "8000:8000"
-    networks:
-      - app-network  
+    depends_on:
+      - web_databse      
+
+
 volumes:
   postgres_data:
 
-networks:
-  app-network:  
-    driver: bridge  
 
