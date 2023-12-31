@@ -51,7 +51,7 @@
 									</ul>
 								</div>
 								<div class="send-message mt-60">
-									<form  action="" method='post'>
+									<form  action="{% url 'home:contact' %}" method='post'>
 										{% csrf_token %}
 										<h4 class="title-1 title-border text-uppercase mb-30">send message</h4>
 										<input type="text" name="name" placeholder="Your name here..." />

@@ -1,9 +1,8 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views import View
-from home.forms import ContactForm
 from shop.models import Product
-from home.models import SliderImage
+from home.models import ContactMessage, SliderImage
 from django.contrib import messages
 
 # Create your views here.
@@ -36,26 +35,37 @@ class AboutUs(View):
         return render(request,'aboutus.html') 
     
 class Contact(View):
-    def get(self,request):
-        return render(request,'contact.html')     
+    def get(self, request):
+        return render(request, 'contact.html')   
     def post(self,request):
         try:
             if request.method == 'POST':
-                form = ContactForm(request.POST)
-                if form.is_valid():
-                    form.save()
-                    messages.success(request, "Your message has ben sent. Thank you for your message.")
+                name=request.POST['name']
+                email=request.POST['email']
+                message=request.POST['message']
+                
+                requird_fields = [name,email,message]
+                if not all(requird_fields):
+                    messages.error(request, 'Please fill in all the required fields.')
                     return redirect("/contact/")
                 else:
-                    messages.error(request, "Please correct the errors below.")
-                    return render(request, 'contact.html', {'form': form})
+                    data = ContactMessage()
+                    data.name = name
+                    data.email = email
+                    data.message = message
+                    data.save()
+                    messages.success(request, "Your message has been sent. Thank you for your message.")
+                    return redirect("/contact/")                       
+            else:
+                messages.error(request, "Please correct the errors below.")
+                return render(request, 'contact.html')
                     
         except Exception as e:
             messages.error(request, "An error occurred while processing your message. Please try again.")
             return render(request, '404.html') 
                     
     
-                
+              
     
     
     

@@ -1,5 +1,6 @@
+
 from django.contrib import admin
-from .models import ShopCart, Cart
+from .models import Country, ShopCart, Cart, Town, Wishlist,State
 
 # Customizing the display of Cart in the Django admin
 class CartAdmin(admin.ModelAdmin):
@@ -12,3 +13,7 @@ class ShopCartAdmin(admin.ModelAdmin):
 # Registering models with their corresponding custom admin classes
 admin.site.register(Cart, CartAdmin)
 admin.site.register(ShopCart, ShopCartAdmin)
+admin.site.register(Wishlist)
+admin.site.register(Country)
+admin.site.register(State)
+admin.site.register(Town)
