@@ -101,18 +101,20 @@
 																<td class="product-price">${{item.product.sale_price}}</td>
 																<td class="product-quantity producty">
 																	<div class="cart-plus" style="color: #666; display: flex; align-items: center; justify-content: center;">
-																		<button class="commen decrement-button changequantity" data-action="decrement" data-product-id="">
+																		<button class="commen decrement-button changequantity" data-action="decrement" data-product-id="{{ item.product.id }}">
 																			<span>-</span>
 																		</button>
 																
-																		<input id="" name="product_count" class="quantity-input" value="{{ item.quantity }}" min="1" readonly>
+																		<input id="quantity-input-{{ item.product.id }}" name="product_count" class="quantity-input" value="{{ item.quantity }}" min="1" readonly>
 																
-																		<button id="yourButtonId" class="commen increment-button changequantity" data-action="increment" data-product-id="">
+																		<button class="commen increment-button changequantity" data-action="increment" data-product-id="{{ item.product.id }}">
 																			<span>+</span>
 																		</button>
 																	</div>
 																</td>
-																<td class="product-subtotal">${{item.single_price}}</td>
+																<!-- Add an ID to the element where you want to display the single price -->
+      															<td class="product-subtotal" id="single-price-{{ item.product.id }}">${{ item.single_price }}</td>
+
 																<td class="product-remove">
 																	<a href="{% url 'order:remove_cart' item.product.id %}"><i class="zmdi zmdi-close"></i></a>
 																</td>
@@ -170,6 +172,68 @@
 			<!-- SHOPPING-CART-AREA END -->
 		</div>
 		<!-- WRAPPER END -->
+
+		<script>
+           $(document).ready(function(){
+			$('.changequantity').on('click',function(event){
+				event.preventDefault();
+				var productId = $(this).data('product-id');
+				var action = $(this).data('action');
+				console.log(action);
+
+				$.ajax({
+					type:'POST',
+					url:'/order/change_quantity/',
+					data:{
+						'product_id': productId,
+						'action': action,
+						'csrfmiddlewaretoken': '{{ csrf_token }}',
+					},
+					success:function(data){
+						$('#quantity-input-'+productId).val(data.new_quantity);
+						$('#single-price-' + productId).text('$' + data.new_single_price); 
+						// Show message if action was not successful
+						if  (data.status === 'Requested quantity exceeds available quantity') {
+							$('#quantity-input-'+productId).val(data.new_quantity);
+							Swal.fire({
+								icon: "error",
+								title: "Requested quantity exceeds available quantity",  // Display the message text as the title
+								toast: true,
+								position: "bottom-end",
+								showConfirmButton: false,
+								timer: 3000,
+								timerProgressBar: true,
+								didOpen: (toast) => {
+								  toast.addEventListener("mouseenter", Swal.stopTimer);
+								  toast.addEventListener("mouseleave", Swal.resumeTimer);
+								}
+							  });
+						} else if (data.status === 'Zero quantity not allowed') {
+							$('#quantity-input-'+productId).val(data.new_quantity);
+							Swal.fire({
+								icon: "error",
+								title: "Zero quantity not allowed",  // Display the message text as the title
+								toast: true,
+								position: "bottom-end",
+								showConfirmButton: false,
+								timer: 3000,
+								timerProgressBar: true,
+								didOpen: (toast) => {
+								  toast.addEventListener("mouseenter", Swal.stopTimer);
+								  toast.addEventListener("mouseleave", Swal.resumeTimer);
+								}
+							  });
+						}
+
+					},
+					error:function(error){
+						console.log('error',error);
+					}
+				})
+				
+			})
+		   })		
+		</script>
 
 {%endblock%}
 {%block footer%}{%include 'footer.html'%}{%endblock%}

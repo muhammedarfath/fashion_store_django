@@ -299,7 +299,49 @@ class PaymentStatus(View):
             except:
                 return render(request,'order_complete.html',{'status':False})             
                   
-                
+class ChangeQuantity(View):
+    def post(self,request):
+        current_user = request.user
+        product_id = request.POST.get('product_id')
+        action = request.POST.get('action')
+        if request.user.is_authenticated:
+            cart_item = get_object_or_404(ShopCart, user=request.user, product = product_id)
+        else:
+            cart = Cart.objects.get(cart_id=_cart_id(request))
+            cart_item = get_object_or_404(ShopCart,cart_item=cart,product = product_id)
+
+
+        if action == 'increment':
+            if cart_item.quantity < cart_item.product.quantity:             
+                cart_item.quantity += 1
+            else:
+                data = {
+                    'status':"Requested quantity exceeds available quantity",
+                    'new_quantity': cart_item.quantity,
+                    'new_single_price': cart_item.product.sale_price * cart_item.quantity,    
+                }  
+                return JsonResponse(data)                
+        elif action == 'decrement':
+            if cart_item.quantity > 1:
+                cart_item.quantity -= 1
+            else:
+                data = {
+                    'status':"Zero quantity not allowed",
+                    'new_quantity': cart_item.quantity,
+                    'new_single_price': cart_item.product.sale_price * cart_item.quantity,    
+                }  
+                return JsonResponse(data)
+        cart_item.single_price = cart_item.product.sale_price * cart_item.quantity
+        cart_item.save()      
+        
+        data = {
+            'status':"success",
+            'new_quantity': cart_item.quantity,
+            'new_single_price': cart_item.product.sale_price * cart_item.quantity,    
+        }  
+        return JsonResponse(data)
+
+                    
         
 
             
