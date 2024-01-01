@@ -3,7 +3,30 @@
 {% load static %}
 {% block header%}{%include 'header.html'%}{%endblock%}
 {% block body %}
+<style>
+	.commen{
+		background: #f6f6f6;
+	    width: 47px;
+		margin-left: -11px;
+		border: 5px solid #fff;
+	    color: #666666;
+		height: 40px;
+		text-align: center;
+		font-size: 20px;"
 
+ }
+.quantity-input {
+	background: #f6f6f6;
+	width: 47px;
+	border: 5px solid #fff;
+	margin: 0 3px 0 -4px;
+	color: #666666;
+	height: 40px;
+	text-align: center;
+	font-size: 14px;
+	pointer-events: none;
+}
+</style>
 
         <div class="wrapper bg-dark-white">
 			<!-- HEADING-BANNER START -->
@@ -76,9 +99,17 @@
 																	<!-- Single-product end -->												
 																</td>
 																<td class="product-price">${{item.product.sale_price}}</td>
-																<td class="product-quantity">
-																	<div class="cart-plus-minus">
-																		<input type="text" value="{{ item.quantity }}" name="qtybutton" class="cart-plus-minus-box">
+																<td class="product-quantity producty">
+																	<div class="cart-plus" style="color: #666; display: flex; align-items: center; justify-content: center;">
+																		<button class="commen decrement-button changequantity" data-action="decrement" data-product-id="">
+																			<span>-</span>
+																		</button>
+																
+																		<input id="" name="product_count" class="quantity-input" value="{{ item.quantity }}" min="1" readonly>
+																
+																		<button id="yourButtonId" class="commen increment-button changequantity" data-action="increment" data-product-id="">
+																			<span>+</span>
+																		</button>
 																	</div>
 																</td>
 																<td class="product-subtotal">${{item.single_price}}</td>
