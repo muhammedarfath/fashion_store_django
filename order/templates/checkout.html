@@ -45,6 +45,7 @@
 									<!-- check-out start -->
 									<div class="tab-pane">
 										<form action="{% url 'order:checkout'%}" method="post">
+											{% csrf_token %}
 											<div class="shop-cart-table check-out-wrap">
 												<div class="row">
 													<div class="col-md-6">
@@ -158,6 +159,7 @@
                                                             <h4 class="title-1 title-border text-uppercase mb-30">Payment Method</h4>
                                                             <div class="payment-accordion">
                                                                 <!-- Accordion start  -->
+																<input type="hidden" name="selectedPaymentMethod" id="selectedPaymentMethod" value="">
                                                                 <h3 class="payment-accordion-toggle active">Cash On Delivery</h3>
                                                                 <div class="payment-content default">
                                                                     <p>Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order won't be shipped until the funds have cleared in our account.</p>
@@ -165,7 +167,7 @@
                                                                     <!-- Checkbox for Cash On Delivery -->
                                                                     <div class="payment-checkbox">
                                                                         <label for="cashOnDelivery">I agree to pay Cash On Delivery</label>
-                                                                        <input type="checkbox" id="cashOnDelivery" name="paymentMethod" value="cashOnDelivery">
+                                                                        <input type="checkbox" id="cashOnDelivery" onclick="updateButton()" name="paymentMethod" value="cashOnDelivery">
                                                                     </div>
                                                                 </div>
                                                                 <!-- Accordion end -->
@@ -174,6 +176,10 @@
                                                                 <h3 class="payment-accordion-toggle">RazorPay</h3>
                                                                 <div class="payment-content">
                                                                     <p>Please send your cheque to Store Name, Store Street, Store Town, Store State / County, Store Postcode.</p>
+                                                                    <div class="payment-checkbox">
+                                                                        <label for="cashOnDelivery">I agree to pay RazorPay</label>
+                                                                        <input type="checkbox" id="razorPayCheckbox" onclick="updateButton()" name="paymentMethod" value="cashOnDelivery">
+                                                                    </div>																	
                                                                 </div>
                                                                 <!-- Accordion end -->
                                                                 
@@ -181,16 +187,13 @@
                                                                 <h3 class="payment-accordion-toggle">PayPal</h3>
                                                                 <div class="payment-content">
                                                                     <p>Pay via PayPal; you can pay with your credit card if you don’t have a PayPal account.</p>
-                                                                    <div>
-                                                                        <a href="#"><img src="img/payment/1.png" alt="" /></a>
-                                                                        <a href="#"><img src="img/payment/2.png" alt="" /></a>
-                                                                        <a href="#"><img src="img/payment/3.png" alt="" /></a>
-                                                                        <a href="#"><img src="img/payment/4.png" alt="" /></a>
+                                                                    <div class="payment-checkbox">
+                                                                        <label for="cashOnDelivery">I agree to pay Cash On Delivery</label>
+                                                                        <input type="checkbox" id="PayPalCheckbox" onclick="updateButton()" name="paymentMethod" value="cashOnDelivery">
                                                                     </div>
                                                                 </div>
                                                                 <!-- Accordion end -->
-                                                    
-                                                                <button class="button-one submit-button mt-15" data-text="Place Order" type="submit">Place Order</button>
+                                                                <button id="pay-button" class="button-one submit-button mt-15" data-text="Place Order" type="submit">Place Order</button>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -200,7 +203,6 @@
 										</form>											
 									</div>
 									<!-- check-out end -->
-
 							</div>
 						</div>
 					</div>
@@ -212,3 +214,25 @@
 
 {%endblock%}
 {%block footer%}{%include 'footer.html'%}{%endblock%}
+{%block javascript%}
+<script>
+	function updateButton() {
+		var cashOnCheckbox = document.getElementById('cashOnDelivery');
+		var razorPayCheckbox = document.getElementById('razorPayCheckbox');
+		var PayPalCheckbox = document.getElementById('PayPalCheckbox');
+		var selectedPaymentMethodInput = document.getElementById('selectedPaymentMethod');
+		var submitButton = document.querySelector('.submit-button');
+	
+		if (razorPayCheckbox.checked) {
+			submitButton.innerHTML = 'Pay with RazorPay';
+			selectedPaymentMethodInput.value = 'razorpay';
+		} else if (cashOnCheckbox.checked) {
+			submitButton.innerHTML = 'Cash On Delivery';
+			selectedPaymentMethodInput.value = 'cashondelivery';
+		} else if (PayPalCheckbox.checked) {
+			submitButton.innerHTML = 'Pay with PayPal';
+			selectedPaymentMethodInput.value = 'paypal';
+		}
+	}
+</script>
+{%endblock%}

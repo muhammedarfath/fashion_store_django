@@ -16,7 +16,8 @@ class ShopCart(models.Model):
     cart_item = models.ForeignKey(Cart, on_delete=models.CASCADE, null=True, default=None)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     quantity = models.IntegerField()
-    
+    single_price = models.FloatField(blank=True, null=True)
+    order_total = models.FloatField(blank=True, null=True)
     def __str__(self):
         if self.user:
             return f"Cart for {self.user.username}"
@@ -54,3 +55,62 @@ class Town(models.Model):
 
     def __str__(self):
         return self.name    
+    
+    
+    
+    
+
+class Payment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    payment_id = models.CharField(max_length=100)
+    payment_method = models.CharField(max_length=100)
+    amount_paid = models.CharField(max_length=100)
+    status = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.payment_id
+
+
+
+class Order(models.Model):
+    ORDERSTATUS = (
+    ("New", "New"),
+    ("Accepted", "Accepted"),
+    ("Preparing", "Preparing"),
+    ("OnShipping", "OnShipping"),
+    ("Completed", "Completed"),
+    ("Canceled", "Canceled"),
+    ("Return", "Return"),
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    payment = models.ForeignKey(Payment, on_delete=models.CASCADE, blank=True, null=True)
+    order_number = models.CharField(max_length=20, blank=True, null=True)
+    user_name = models.CharField(max_length=100)
+    email = models.CharField(max_length=30, null=True, blank=True)
+    phone = models.CharField(blank=True, max_length=20)
+    address = models.CharField(max_length=100, blank=True, null=True)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)
+    city = models.ForeignKey(Town, on_delete=models.CASCADE, null=True)
+    state = models.ForeignKey(State, on_delete=models.CASCADE, null=True)
+    order_total = models.FloatField(blank=True, null=True)
+    tax = models.FloatField(blank=True, null=True)
+    status = models.CharField(max_length=10,choices=ORDERSTATUS, default="New",blank=True,null=True)
+    create_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.user_name
+
+
+class OrderProduct(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    payment = models.ForeignKey(Payment, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+    create_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
+
+
+    

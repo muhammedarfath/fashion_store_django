@@ -46,6 +46,13 @@ INSTALLED_APPS = [
     'order',
 ]
 
+
+
+RAZORPAY_API_KEY = 'rzp_test_dJ031uu0BTMT8W'
+RAZORPAY_API_SECRET = 'O0r3DEOZ7jIzOQZCvhBMKZ4F'
+
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -141,6 +148,10 @@ MEDIAFILES_DIRS = [
     'Main/media'
     
 ]
+
+
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

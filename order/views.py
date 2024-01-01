@@ -1,10 +1,14 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render ,get_object_or_404
 from django.views import View
 from shop.models import Product
-from order.models import Cart, ShopCart, Wishlist
+from order.models import Cart, Country, Order, OrderProduct, Payment, ShopCart, State, Town, Wishlist
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+import razorpay
+import random
+import time
+from django.conf import settings
 
 # Create your views here.
 
@@ -18,19 +22,32 @@ def _cart_id(request):
 
 # View for displaying the shopping cart
 class ShopyCart(View):
+    total = 0
     def get(self,request):
         current_user = request.user
         try:
             if current_user.is_authenticated:
                 cart_item = ShopCart.objects.filter(user=current_user)
+                
             else:
                 cart = Cart.objects.get(cart_id=_cart_id(request))    
                 cart_item = ShopCart.objects.filter(cart_item=cart)
+            for items in cart_item:
+                items.single_price = items.product.sale_price * items.quantity 
+                self.total += items.product.sale_price * items.quantity 
+                items.save()
+                
         except ObjectDoesNotExist:
             pass
+        tax = (2 * self.total) / 100
+        grand_total = self.total + tax
+        
+        
+        request.session['grand_total'] = float(grand_total)
         
         context = {
-            'cart_item':cart_item
+            'cart_item':cart_item,
+            'grand_total':grand_total
         }
         return render(request,'cart.html',context)
     
@@ -44,7 +61,7 @@ class AddToCart(View):
         if request.method == 'POST':
             product = Product.objects.get(id=id)
             if current_user.is_authenticated:
-                cart_item = ShopCart.objects.filter(user=current_user,product=product)
+                cart_item = ShopCart.objects.filter(user=current_user,product=product).first()
                 wislistitem = Wishlist.objects.filter(user=current_user,product=product)
                 if wislistitem:
                     wislistitem.delete()
@@ -141,8 +158,10 @@ class CheckOut(View):
         current_user = request.user
         cart_item = ShopCart.objects.filter(user=current_user)
         if current_user.is_authenticated and cart_item:
+            grand_total = request.session.get('grand_total') * 100
             context = {
-                'cart_item':cart_item
+                'cart_item':cart_item,
+                'grand_total':grand_total
             }
             return render(request,'checkout.html',context)    
         else:
@@ -150,15 +169,147 @@ class CheckOut(View):
             return redirect('/order/shopcart/')
         
     def post(self,request):
+        total = 0
         current_user = request.user
+        cart_item = ShopCart.objects.filter(user=current_user)
         if request.method == "POST":
-            name = request.POST['name']
-            email = request.POST['email']
-            phone =request.POST['phone']
-            country = request.POST['country']
-            state = request.POST['state']
-            city = request.POST['city']
-            address = request.POST['address']
+            name = request.POST.get('name')
+            email = request.POST.get('email')
+            phone = request.POST.get('phone')
+            country = request.POST.get('country')
+            state = request.POST.get('state')
+            city = request.POST.get('city')
+            address = request.POST.get('address')
+            selected_payment_method = request.POST.get('selectedPaymentMethod')
+            
+            
+            grand_total = request.session.get('grand_total', 0) * 100
+            requird_fields = [name,email,phone,country,state,city,address,selected_payment_method]
+            if not all(requird_fields):
+                messages.error(request,'Please fill in all the required fields.')
+                return redirect('/order/checkout/')
+            country_instance = Country.objects.get(name=country)
+            state_instance = State.objects.get(name=state)
+            city_instance = Town.objects.get(name=city)
+            
+            
+            
+            payment = Payment()
+            payment.user = current_user
+            payment.payment_method = selected_payment_method
+            payment.amount_paid = grand_total
+            
+            order_details = Order()
+            order_details.user = current_user
+            order_details.payment = payment
+            order_details.user_name = name
+            order_details.email = email
+            order_details.phone = phone
+            order_details.address = address
+            order_details.country = country_instance
+            order_details.state = state_instance
+            order_details.city = city_instance
+            order_details.order_total = grand_total
+            
+            
+            for item in cart_item:
+                product_details = OrderProduct()
+                product_details.order = order_details
+                product_details.payment = payment
+                product_details.user =current_user
+                product_details.product = item.product
+                product_details.quantity = item.quantity  
+                item.product.quantity -= 1
+                item.product.save()
+                total += item.product.sale_price * item.quantity 
+            tax = (2 * total) / 100    
+            order_details.tax = tax    
+                          
+            
+            if selected_payment_method == 'razorpay':
+                client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET))
+
+                payment_data = {
+                    "amount": grand_total,
+                    "currency": "INR",
+                    "receipt": "order_receipt",
+                    "notes": {
+                        "email": current_user.email,
+                    },
+                    }        
+                order = client.order.create(data=payment_data)
+                
+                order_details.order_number = order["id"]
+                payment.save()
+                order_details.save()
+                product_details.save()
+                cart_item.delete()
+                
+                
+                
+                context={
+                    'order_details':order_details,
+                    'paymet_type':selected_payment_method,
+                    'order':order
+                }
+                
+                return render(request,'razorpay.html',context)
+            elif selected_payment_method == 'cashondelivery':
+                timestamp = int(time.time())
+                random_chars = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=6))
+                order_number = f'{timestamp}-{random_chars}'
+                request.session['order_number'] = order_number
+                order_details.order_number = order_number
+                payment.save()
+                order_details.save()
+                product_details.save()
+                ShopCart.objects.filter(user=current_user).delete()   
+                return redirect('/order/payment_status/')    
+
+            elif selected_payment_method == 'paypal':
+                # Handle PayPal logic
+                pass            
+            
+
+            
+            
+class PaymentStatus(View):
+    def get(self,request):
+        razorpay=request.GET.get('razorpay')
+        if razorpay:
+            response = request.POST
+            razorpay_payment_id = response['razorpay_payment_id']
+            try:
+                order = Order.objects.get(order_number=response['razorpay_order_id'])
+                order.payment.payment_id = razorpay_payment_id
+                order.payment.save()
+                return render(request,'order_complete.html',{'status':True})
+            except:
+                return render(request,'order_complete.html',{'status':False})  
+        else:
+            try:
+                cod = 'cod'
+                random_chars = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=6))
+                payment_id = f'{cod}-{random_chars}'
+                order_number = request.session.get('order_number')
+                order = Order.objects.get(order_number=order_number)
+                order.payment.payment_id = payment_id
+                order.payment.save()
+                return render(request,'order_complete.html',{'status':True})
+            except:
+                return render(request,'order_complete.html',{'status':False})             
+                  
+                
+        
+
+            
+            
+            
+            
+            
+            
+            
+            
             
             
                        

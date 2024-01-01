@@ -15,5 +15,6 @@ urlpatterns = [
     path('wishlist/',views.WishListShow .as_view(),name='wishlist'),
     path('addtowishlist/<int:id>/',views.AddToWishList.as_view(),name='addtowishlist'),
     path('checkout/',views.CheckOut.as_view(),name='checkout'),
+    path('payment_status/',views.PaymentStatus.as_view(),name='payment_status'),
 
 ]

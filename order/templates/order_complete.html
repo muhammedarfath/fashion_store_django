@@ -1,0 +1,103 @@
+
+{% extends "base.html" %}
+{% load static %}
+{% block header%}{%include 'header.html'%}{%endblock%}
+{% block body %}
+<div class="heading-banner-area overlay-bg">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="heading-banner">
+                    <div class="heading-banner-title">
+                        <h2>Shopping Check out</h2>
+                    </div>
+                    <div class="breadcumbs pb-15">
+                        <ul>
+                            <li><a href="index.html">Home</a></li>
+                            <li>Shopping Check out</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="wrapper bg-dark-white">
+    <!-- order-complete start -->
+    <div class="tab-pane" id="order-complete">
+        <form action="#">
+            <div class="thank-recieve bg-white mb-30">
+                <p>Thank you. Your order has been received.</p>
+            </div>
+            <div class="order-info bg-white text-center clearfix mb-30">
+                <div class="single-order-info">
+                    <h4 class="title-1 text-uppercase text-light-black mb-0">order no</h4>
+                    <p class="text-uppercase text-light-black mb-0"><strong>m 2653257</strong></p>
+                </div>
+                <div class="single-order-info">
+                    <h4 class="title-1 text-uppercase text-light-black mb-0">Date</h4>
+                    <p class="text-uppercase text-light-black mb-0"><strong>june 15, 2021</strong></p>
+                </div>
+                <div class="single-order-info">
+                    <h4 class="title-1 text-uppercase text-light-black mb-0">Total</h4>
+                    <p class="text-uppercase text-light-black mb-0"><strong>$ 170.00</strong></p>
+                </div>
+                <div class="single-order-info">
+                    <h4 class="title-1 text-uppercase text-light-black mb-0">payment method</h4>
+                    <p class="text-uppercase text-light-black mb-0"><a href="#"><strong>check payment</strong></a></p>
+                </div>
+            </div>
+            <div class="shop-cart-table check-out-wrap">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="our-order payment-details pr-20">
+                            <h4 class="title-1 title-border text-uppercase mb-30">our order</h4>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th><strong>Product</strong></th>
+                                        <th class="text-end"><strong>Total</strong></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Dummy Product Name  x 2</td>
+                                        <td class="text-end">$86.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Dummy Product Name  x 1</td>
+                                        <td class="text-end">$69.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Cart Subtotal</td>
+                                        <td class="text-end">$155.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Shipping and Handing</td>
+                                        <td class="text-end">$15.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Vat</td>
+                                        <td class="text-end">$00.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Order Total</td>
+                                        <td class="text-end">$170.00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- payment-method -->
+                    <div class="col-md-6 mt-xs-30">
+                       <button class="btn btn-success">Back to shop</button>
+                    </div>
+                </div>
+            </div>
+        </form>										
+    </div>
+</div>
+									<!-- order-complete end -->
+
+{%endblock%}
+{%block footer%}{%include 'footer.html'%}{%endblock%}

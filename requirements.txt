@@ -5,3 +5,4 @@ psycopg2==2.9.9
 sqlparse==0.4.4
 django-autoslug==1.9.9
 python-decouple==3.8
+razorpay==1.4.1
