@@ -2,7 +2,7 @@ version: '3'
 
 services:
 
-  web_databse:
+  web_database:
     image: postgres:latest
     container_name: fashion_database
     environment:
@@ -23,7 +23,7 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - web_databse      
+      - web_database      
 
 
 volumes:

@@ -31,6 +31,7 @@ class Wishlist(models.Model):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     added_at = models.DateTimeField(auto_now_add=True)
     quantity = models.IntegerField(null=True, default=1)
+    
 
     def __str__(self):
         return f"{self.user.username}'s Wishlist"

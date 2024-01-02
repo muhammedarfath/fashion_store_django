@@ -1,0 +1,189 @@
+
+{% extends "base.html" %}
+{% load static %}
+{% block header%}{%include 'header.html'%}{%endblock%}
+{% block body %}
+		<!-- WRAPPER START -->
+		<div class="wrapper bg-dark-white">
+
+			<!-- HEADING-BANNER START -->
+			<div class="heading-banner-area overlay-bg">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="heading-banner">
+								<div class="heading-banner-title">
+									<h2>My Account</h2>
+								</div>
+								<div class="breadcumbs pb-15">
+									<ul>
+										<li><a href="index.html">Home</a></li>
+										<li>My Account</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- HEADING-BANNER END -->
+			<!-- MY-ACCOUNT-AREA START -->
+			<div class="my-account-area  pt-80 pb-80">
+				<div class="container">	
+					<div class="my-account">
+						<div class="row">
+							<div class="col-md-6">
+								<div class="panel-group" id="accordion">
+									<div class="panel mb-2">
+										<div class="my-account-menu" >
+											<a  data-bs-toggle="collapse" href="#my-info">
+											My Personal Information
+											</a>
+										</div>
+										<div id="my-info" class="panel-collapse collapse show" data-bs-parent="#accordion">
+                                        <form action="" method="post">
+                                            {% csrf_token %}
+											<div class="panel-body">
+												
+												<div class="billing-details shop-cart-table">
+													<input name="name" value="{{user.username}}" type="text" placeholder="Your name here...">
+													<input name='email' value="{{user.email}}" type="text" placeholder="Email address here..." readonly>
+													<input name="phone" value="{{ account.phone }}" type="text" placeholder="Phone here...">
+													<select name="country" class="custom-select mb-15">
+														{% if account.country %}
+														<option value="{{ account.country }}">{{ account.country }}</option>
+														{% else %}
+														<option value="">Contry</option>
+														{% endif %}
+														<option value="Bangladesh">Bangladesh</option>
+														<option value="United States">United States</option>
+														<option value="United Kingdom">United Kingdom</option>
+														<option value="Australia">Australia</option>
+														<option value="Canada">Canada</option>
+													</select>
+													
+													<select name="state" class="custom-select mb-15">
+														{% if account.state %}
+														<option value="{{ account.state }}">{{ account.state }}</option>
+														{% else %}
+														<option value="">State</option>
+														{% endif %}
+														<option value="Dhaka">Dhaka</option>
+														<option value="New York">New York</option>
+														<option value="London">London</option>
+														<option value="Melbourne">Melbourne</option>
+														<option value="Ottawa">Ottawa</option>
+													</select>
+													
+													<select name="city" class="custom-select mb-15">
+														{% if account.city %}
+														<option value="{{ account.city }}">{{ account.city }}</option>
+														{% else %}
+														<option value="">Town / City</option>
+														{% endif %}
+														<option value="Dhaka">Dhaka</option>
+														<option value="New York">New York</option>
+														<option value="London">London</option>
+														<option value="Melbourne">Melbourne</option>
+														<option value="Ottawa">Ottawa</option>
+													</select>
+													<textarea name="address" placeholder="Your address here..." class="custom-textarea">{{account.address}}</textarea>
+                                                    <button type="submit" data-text="place order" class="button-one submit-button mt-15">Edit Details</button>			
+
+												</div>
+											</div>
+                                        </form>
+										</div>
+									</div>
+									<div class="panel mb-2">
+										<div class="my-account-menu">
+											<a class="collapsed"  data-bs-toggle="collapse"  href="#my-billing">
+											Wallet History
+											</a>
+										</div>
+										<div id="my-billing" class="panel-collapse collapse" data-bs-parent="#accordion">
+											<div class="panel-body">
+												<div class="billing-details shop-cart-table">
+													
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="panel mb-2 mb-md-0">
+										<div class="my-account-menu">
+											<a class="collapsed"  data-bs-toggle="collapse"  href="#my-order">
+											Order history and details
+											</a>
+										</div>
+										<div id="my-order" class="panel-collapse collapse" data-bs-parent="#accordion">
+											<div class="panel-body">
+												<div class="our-order payment-details shop-cart-table">
+													{% for order in orderproduct %}
+													<div class="card w-70">
+														<div class="card-body">
+															<h5 class="card-title">{{ order.product.title }} x {{ order.quantity }}</h5>
+															<p>Order Status: {{ order.order.status }}</p>
+															<a href="single-product.html"><img style="height:50px;width:50px;" src="{{ order.product.image.url }}" alt="image" /></a>
+															<span class="badge badge-sm {% if order.order.status == 'New' %}badge-success{% elif order.order.status == 'Accepted' %}badge-info{% elif order.order.status == 'Canceled' %}badge-danger{% else %}badge-secondary{% endif %} d-none d-sm-inline-flex">
+																{{ order.order.status }}
+															</span>
+															<a href="" class="btn btn-primary">Details</a>
+															<a href="#" class="btn btn-success">Invoice Download</a>
+														</div>
+													</div>
+													{% endfor %}													
+												</div>
+											</div>
+										</div>
+									</div>					
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="panel-group" id="accordion-2">
+									<div class="panel mb-2">
+										<div class="my-account-menu" >
+											<a  data-bs-toggle="collapse" href="#my-payment-method">
+											Change Password
+											</a>
+										</div>
+										<div id="my-payment-method" class="panel-collapse collapse show" data-bs-parent="#accordion-2" style="background:#fff;">
+											<div class="panel-body" style="padding: 12px;">
+												<form action="{% url 'user:updatepassword'%}" method="post">
+													{% csrf_token %}
+													{% for field in form %}
+														<div class="form-field">
+															<label for="{{ field.id_for_label }}" style="font-weight: bold;">{{ field.label_tag }}</label>
+															{{ field }}
+															{% if field.help_text %}
+																<small style="color: grey;">{{ field.help_text }}</small>
+															{% endif %}
+															{% for error in field.errors %}
+																<p style="color: red;">{{ error }}</p>
+															{% endfor %}
+														</div>
+													{% endfor %}
+													<button type="submit" data-text="place order" class="button-one submit-button mt-15">Edit Details</button>		
+												</form>
+											</div>
+										</div>
+									</div>
+									<div class="panel">
+										<div class="my-account-menu my-account-menu-2" >
+											<a  href="wishlist.html" >
+											My Wishlist
+											</a>
+										</div>
+									</div>
+								</div>								
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- MY-ACCOUNT-CART-AREA END -->
+			
+		</div>
+		<!-- WRAPPER END -->
+
+{%endblock%}
+{%block footer%}{%include 'footer.html'%}{%endblock%}

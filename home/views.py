@@ -64,7 +64,7 @@ class Contact(View):
             messages.error(request, "An error occurred while processing your message. Please try again.")
             return render(request, '404.html') 
                     
-    
+
               
     
     

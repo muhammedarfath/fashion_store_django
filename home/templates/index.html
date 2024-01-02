@@ -188,10 +188,11 @@
 							<ul>
 								<li><a class="search-open" href="#" title="Search"><i class="zmdi zmdi-search"></i></a></li>
 								{% if user.id is not None %}
-								<li><a href="my-account.html" title="My-Account"><i class="zmdi zmdi-account"></i></a>
+								<li><a href="" title="My-Account"><i class="zmdi zmdi-account"></i></a>
 									<div class="customer-login text-left">
 										<h4 class="title-1 title-border text-uppercase mb-30">{{ user.username  }}</h4>
 										<a class="button-one submit-button mt-15" href={% url 'user:logout'%} data-text="login" type="submit">logout</a>
+										<a class="button-one submit-button mt-15" href={% url 'user:account'%} data-text="account" type="submit">My Account</a>
 									</div>									
 								</li>
 								{% else %}
