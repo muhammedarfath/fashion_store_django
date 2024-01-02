@@ -13,7 +13,7 @@ from .forms import SignupForm
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth.forms import PasswordChangeForm
-
+from django.core.mail import send_mail
 
 # User signup area
 class Signup(View):
@@ -25,11 +25,51 @@ class Signup(View):
             form = SignupForm(request.POST)
             if form.is_valid():
                 form.save()
-                messages.success(request, 'Your account has been created!')
-                return redirect('/')
+                otp = str(random.randint(100000, 999999))
+
+                request.session['user']=form.cleaned_data['username']
+                request.session['signup_otp'] = otp
+    
+                print(otp)
+
+
+                subject = 'OTP Verification Code'
+                message = f'Your OTP code for signup is: {otp}'
+                from_email = 'coloshope@gmail.com'
+                recipient_list = [form.cleaned_data['email']]
+                
+                # return HttpResponse(from_email)
+
+                send_mail(subject, message, from_email, recipient_list)
+                
+                messages.success(request, 'Your account has been created!Please Enter OTP')
+                return render(request,'otp.html',{'user':form.cleaned_data['email']})            
             else:
                 messages.warning(request, form.errors)
                 return redirect('/user/signup/')
+
+class Otp(View):
+    def post(self,request):
+        if request.method == 'POST':
+            otp_entered = (
+                request.POST['first'] +
+                request.POST['second'] +
+                request.POST['third'] +
+                request.POST['fourth'] +
+                request.POST['fifth'] +
+                request.POST['sixth']
+            )
+            otp_saved = request.session.get('signup_otp')
+            if otp_entered == otp_saved:
+                username=request.session['user']
+                # print(username)
+                user = User.objects.get(username=username)
+                user.is_active = True
+                user.save()
+                messages.success(request, "Your registration is successful. You can now log in.")           
+                return redirect('/')  
+            else:
+                messages.error(request, 'Invalid OTP. Please try again.')
 
 
 # User login area and checking cart item
@@ -47,7 +87,7 @@ class Login(View):
                 messages.warning(request, 'Please fill in all required fields.')
                 return redirect('/')
             
-            user = authenticate(request, username=name, password=password)
+            user = authenticate(request, username=name, password=password, is_active=True)
             
             if user is not None:
                 try:
@@ -169,4 +209,3 @@ class UpdatePassword(View):
             form = PasswordChangeForm(request.user)
             return render(request, "myaccount.html", {"form": form})    
 
-        

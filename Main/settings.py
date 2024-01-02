@@ -152,6 +152,17 @@ MEDIAFILES_DIRS = [
 
 
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Replace with your SMTP server
+EMAIL_PORT = 587  # Port for the SMTP server (e.g., 587 for TLS, 465 for SSL)
+EMAIL_USE_TLS = True  # Set to True for TLS, or False if not needed
+EMAIL_USE_SSL = False  # Set to True for SSL, or False if not needed
+EMAIL_HOST_USER = 'coloshope@gmail.com'  # Your email address
+EMAIL_HOST_PASSWORD = 'nyrupdletrarpcze'  # Your email password
+DEFAULT_FROM_EMAIL = 'coloshope@gmail.com'  # Your default 'from' address
+SERVER_EMAIL = 'coloshope@gmail.com'  # Email address to use for error messages
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

@@ -10,11 +10,13 @@ app_name = 'user'
 
 # URL patterns for the 'user' app
 urlpatterns = [
-    path('signup/', views.Signup.as_view(), name='signup'),         
+    path('signup/', views.Signup.as_view(), name='signup'), 
+    path('otp/',views.Otp.as_view(),name='otp'),        
     path('login/', never_cache(views.Login.as_view()), name='login'),  
     path('logout/', never_cache(views.Logout.as_view()), name='logout'), 
     path('account/',views.Account.as_view(),name='account'),
     path('updatepassword/',views.UpdatePassword.as_view(),name='updatepassword'),
+    
 
 ]
 
