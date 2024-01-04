@@ -58,3 +58,6 @@ def shopcart_details(request):
         pass
 
     return {'shopcart_details': shopcart}
+
+
+    

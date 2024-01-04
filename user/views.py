@@ -209,3 +209,9 @@ class UpdatePassword(View):
             form = PasswordChangeForm(request.user)
             return render(request, "myaccount.html", {"form": form})    
 
+
+class ForgotPassword(View):
+    def get(self,request):
+        return render(request,'forgot_password.html')
+    def post(self,request):
+        pass

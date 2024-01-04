@@ -9,17 +9,18 @@ from shop.models import Product, Variants
 # View to display all products
 class ProductsShow(View):
     def get(self,request):
-        products = Product.objects.all()
+        catid = request.GET.get('categories')
+        if catid:
+            products = Product.objects.filter(category__id=catid, status=True).order_by("id")
+        else:    
+            products = Product.objects.all()
         context = {
             'products':products
         }
         return render(request,'shop.html',context)
  
- 
- 
-# View to display a single product
 class SingleProduct(View):
-    def get(self,request,id):
+    def get(self, request, id):
         product = Product.objects.get(id=id)
         variants = Variants.objects.filter(product=product)
 
@@ -30,15 +31,16 @@ class SingleProduct(View):
         for variant in variants:
             for related_product in variant.variant.all():
                 productvariant.append(related_product)
-                
+
         product_images = product.image_types.all()
         product_sizes = product.size.all()
-          
+
         context = {
-            'product':product,
-            'variant':productvariant,
-            'product_images':product_images,
-            'product_sizes':product_sizes,
-            'selected_size_id': selected_size_id,  
+            'product': product,
+            'variant': productvariant,
+            'product_images': product_images,
+            'product_sizes': product_sizes,
+            'selected_size_id': selected_size_id,
         }
-        return render(request,'single_product.html',context)    
+        return render(request, 'single_product.html', context)
+   

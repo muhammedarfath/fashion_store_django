@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from shop.models import Product
+from shop.models import Product, Size
 # Create your models here.
 
 
@@ -16,6 +16,7 @@ class ShopCart(models.Model):
     cart_item = models.ForeignKey(Cart, on_delete=models.CASCADE, null=True, default=None)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     quantity = models.IntegerField()
+    size = models.CharField(max_length=20,null=True)
     single_price = models.FloatField(blank=True, null=True)
     order_total = models.FloatField(blank=True, null=True)
     def __str__(self):

@@ -2,14 +2,17 @@
 {% load static %}
 {% block header%}{%include 'header.html'%}{%endblock%}
 {% block body %}
-			<div class="mobile-menu-area">
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/@trevoreyre/autocomplete-js/dist/style.css"/>	
+  		<div class="mobile-menu-area">
 				<div class="container-fluid">
 					<div class="row">
 						<div class="col-xs-12 d-block d-md-none">
 							<div class="mobile-menu">
 								<nav id="dropdown">
 									<ul>
-										<li><a href="index.html">home</a>
+										<li><a href="/">home</a>
 											<ul>
 												<li><a href="index.html">Home Version 1</a></li>
 												<li><a href="index-2.html">Home Version 2</a></li>
@@ -48,7 +51,7 @@
 						</div>
 					</div>
 				</div>
-			</div>
+		</div>
 
 			<section class="slider-banner-area clearfix">
 				<!-- Sidebar-social-media start -->
@@ -73,12 +76,12 @@
 							{% if forloop.counter == 1 %}
 							<a class="banner-thumb" href="{% url 'shop:singleproduct' product.id %}"><img style="width:450px;height:375px;"  src="{{product.image.url}}" alt="" /></a>
 							<span class="pro-label new-label">new</span>
-							<span class="price">$50.00</span>
+							<span class="price"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{ product.sale_price }}</span>
 							<div class="banner-brief">
-								<h2 class="banner-title"><a href="#">Product name</a></h2>
-								<p class="mb-0">Furniture</p>
+								<h2 class="banner-title"><a href="#">{{ product.title }}</a></h2>
+								<p class="mb-0">{{ product.category.name }}</p>
 							</div>
-							<a href="#" class="button-one font-16px" data-text="Buy now">Buy now</a>
+							<a href="{% url 'shop:singleproduct' product.id %}" class="button-one font-16px" data-text="Buy now">Buy now</a>
 							{% endif %}
 							{% endfor %}
 						</div>
@@ -87,9 +90,9 @@
 							{% if forloop.counter == 2 %}
 							<a class="banner-thumb" href="#"><img style="width:450px;height:375px;" src="{{product.image.url}}" alt="" /></a>
 							<div class="banner-brief">
-								<h2 class="banner-title"><a href="#">New Product 2021</a></h2>
-								<p class="hidden-md hidden-sm d-none d-md-block">Lorem Ipsum is simply dummy text of the printing and types sate industry. Lorem Ipsum has been the industry.</p>
-								<a href="#" class="button-one font-16px" data-text="Buy now">Buy now</a>
+								<h2 class="banner-title"><a href="#">New Product 2024</a></h2>
+								<p class="hidden-md hidden-sm d-none d-md-block">{{ product.description }}.</p>
+								<a href="{% url 'shop:singleproduct' product.id %}" class="button-one font-16px" data-text="Buy now">Buy now</a>
 							</div>
 							{% endif %}
 							{% endfor %}
@@ -201,10 +204,10 @@
 										<form action="{% url 'user:login' %}" method='POST'>
 											{% csrf_token %}
 											<h4 class="title-1 title-border text-uppercase mb-30">Login customers</h4>
-											<p class="text-gray">If you have an account with us, Please login!</p>
+											<p class="text-gray">If you have no account with us, Sign Up!</p>
 											<input type="text" name="name" placeholder="username here..." />
 											<input name="password" type="password" placeholder="Password" />
-											<p><a class="text-gray" href="#">Forget your password?</a></p>
+											<p><a class="text-gray" href="/user/forgotpassword/">Forget your password?</a></p>
 											<button class="button-one submit-button mt-15" data-text="login" type="submit">login</button>
 											<p><a class="text-gray" href="/user/signup/">Don't have an account? Signup</a></p>
 										</form>
@@ -212,7 +215,7 @@
 								</li>
 								{% endif %}
 								
-								<li><a href="wishlist.html" title="Wishlist"><i class="zmdi zmdi-favorite"></i></a></li>
+								<li><a href="/order/wishlist/" title="Wishlist"><i class="zmdi zmdi-favorite"></i></a></li>
 							</ul>
 						</div>
 					</div>
@@ -228,11 +231,15 @@
 								<div class="col-md-8 offset-md-2 p-0">
 									<div class="search-form-wrap">
 										<button class="close-search"><i class="zmdi zmdi-close"></i></button>
-										<form action="#">
-											<input type="text" placeholder="Search here..." />
+										<form method="post" action="{% url 'home:get_product' %}">
+											{% csrf_token %}
+										<div id="autocomplete" class="autocomplete" >
+											<input class="autocomplete-input" name="query" type="text" placeholder="Search here..." />
+											<ul class="autocomplete-result-list"></ul>
 											<button class="search-button" type="submit">
 												<i class="zmdi zmdi-search"></i>
 											</button>
+										</div>
 										</form>
 									</div>
 								</div>
@@ -257,19 +264,19 @@
 										<span class="pro-label new-label">new</span>
 										<a href="{% url 'shop:singleproduct' product.id %}"><img style="width:270px;height:270px;"  src="{{product.image.url}}" alt="" /></a>
 										<div class="product-action clearfix">
-											<a href="wishlist.html" data-bs-toggle="tooltip" data-placement="top" title="Wishlist"><i class="zmdi zmdi-favorite-outline"></i></a>
-											<a href="#" data-bs-toggle="modal"  data-bs-target="#productModal" title="Quick View"><i class="zmdi zmdi-zoom-in"></i></a>
-											<a href="#" data-bs-toggle="tooltip" data-placement="top" title="Compare"><i class="zmdi zmdi-refresh"></i></a>
-											<a href="cart.html" data-bs-toggle="tooltip" data-placement="top" title="Add To Cart"><i class="zmdi zmdi-shopping-cart-plus"></i></a>
+											<a href="/order/wishlist/" data-bs-toggle="tooltip" data-placement="top" title="Wishlist"><i class="zmdi zmdi-favorite-outline"></i></a>
+											<a href="{% url 'shop:singleproduct' product.id %}"  data-bs-target="tooltip" title="Quick View"><i class="zmdi zmdi-zoom-in"></i></a>
+											<a href="/" data-bs-toggle="tooltip" data-placement="top" title="Compare"><i class="zmdi zmdi-refresh"></i></a>
+											<a href="/order/shopcart/" data-bs-toggle="tooltip" data-placement="top" title="Add To Cart"><i class="zmdi zmdi-shopping-cart-plus"></i></a>
 										</div>
 									</div>
 									<div class="product-info clearfix">
 										<div class="fix">
-											<h4 class="post-title floatleft"><a href="#">dummy Product name</a></h4>
-											<p class="floatright hidden-sm d-none d-md-block">Furniture</p>
+											<h4 class="post-title floatleft"><a href="#">{{ product.title }}</a></h4>
+											<p class="floatright hidden-sm d-none d-md-block">{{ product.category }}</p>
 										</div>
 										<div class="fix">
-											<span class="pro-price floatleft">$ 56.20</span>
+											<span class="pro-price floatleft"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{ product.sale_price }}</span>
 											<span class="pro-rating floatright">
 												<a href="#"><i class="zmdi zmdi-star"></i></a>
 												<a href="#"><i class="zmdi zmdi-star"></i></a>
@@ -293,77 +300,30 @@
 				<div class="container">
 					<div class="row">
 						<div class="discount-product-slider dots-bottom-right">
+
 							<!-- single-discount-product start -->
+							{% for img in banners_images %}
+							{% if img.discount_banner.all %}
+								{% for disc in img.discount_banner.all %}
 							<div class="col-lg-12">
 								<div class="discount-product">
-									<img src="{% static 'img/discount/1.jpg' %}" alt="" />
+									<img src="{{ disc.image.url}}" alt="" />
 									<div class="discount-img-brief">
 										<div class="onsale">
 											<span class="onsale-text">On Sale</span>
-											<span class="onsale-price">$ 80.00</span>
+											<span class="onsale-price"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span> 80.00</span>
 										</div>
 										<div class="discount-info">
 											<h1 class="text-dark-red d-none d-md-block">Discount 50%</h1>
 											<p class="d-none d-md-block">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed does eiusmodes tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim venim, quis nostrud exercitation ullamco laboris.</p>
-											<a href="#" class="button-one font-16px style-3 text-uppercase mt-md-5" data-text="Buy now">Buy now</a>
+											<a href="/shop/products/" class="button-one font-16px style-3 text-uppercase mt-md-5" data-text="Buy now">Buy now</a>
 										</div>
 									</div>
 								</div>
 							</div>
-							<!-- single-discount-product end -->
-							<!-- single-discount-product start -->
-							<div class="col-lg-12">
-								<div class="discount-product">
-									<img src="{% static 'img/discount/2.jpg' %}" alt="" />
-									<div class="discount-img-brief">
-										<div class="onsale">
-											<span class="onsale-text">On Sale</span>
-											<span class="onsale-price">$ 80.00</span>
-										</div>
-										<div class="discount-info">
-											<h1 class="text-dark-red d-none d-md-block">Discount 50%</h1>
-											<p class="d-none d-md-block">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed does eiusmodes tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim venim, quis nostrud exercitation ullamco laboris.</p>
-											<a href="#" class="button-one font-16px style-3 text-uppercase mt-md-5" data-text="Buy now">Buy now</a>
-										</div>
-									</div>
-								</div>
-							</div>
-							<!-- single-discount-product end -->
-							<!-- single-discount-product start -->
-							<div class="col-lg-12">
-								<div class="discount-product">
-									<img src="{% static 'img/discount/3.jpg' %}" alt="" />
-									<div class="discount-img-brief">
-										<div class="onsale">
-											<span class="onsale-text">On Sale</span>
-											<span class="onsale-price">$ 80.00</span>
-										</div>
-										<div class="discount-info">
-											<h1 class="text-dark-red d-none d-md-block">Discount 50%</h1>
-											<p class="d-none d-md-block">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed does eiusmodes tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim venim, quis nostrud exercitation ullamco laboris.</p>
-											<a href="#" class="button-one font-16px style-3 text-uppercase mt-md-5" data-text="Buy now">Buy now</a>
-										</div>
-									</div>
-								</div>
-							</div>
-							<!-- single-discount-product end -->
-							<!-- single-discount-product start -->
-							<div class="col-lg-12">
-								<div class="discount-product">
-									<img src="{% static 'img/discount/4.jpg' %}" alt="" />
-									<div class="discount-img-brief">
-										<div class="onsale">
-											<span class="onsale-text">On Sale</span>
-											<span class="onsale-price">$ 80.00</span>
-										</div>
-										<div class="discount-info">
-											<h1 class="text-dark-red d-none d-md-block">Discount 50%</h1>
-											<p class="d-none d-md-block">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed does eiusmodes tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim venim, quis nostrud exercitation ullamco laboris.</p>
-											<a href="#" class="button-one font-16px style-3 text-uppercase mt-md-5" data-text="Buy now">Buy now</a>
-										</div>
-									</div>
-								</div>
-							</div>
+							{% endfor %}
+							{% endif %}
+						{% endfor %}
 							<!-- single-discount-product end -->
 						</div>
 					</div>
@@ -399,12 +359,12 @@
 										<div class="single-product col-xl-3 col-lg-4 col-md-6">
 											<div class="product-img">
 												<span class="pro-label new-label">new</span>
-												<a href="single-product.html"><img style="width:270px;height:270px;" src="{{ pro.image.url }}" alt="" /></a>
+												<a href="{% url 'shop:singleproduct' pro.id %}"><img style="width:270px;height:270px;" src="{{ pro.image.url }}" alt="" /></a>
 												<div class="product-action clearfix">
-													<a href="{% url 'order:addtowishlist' pro.id %}" data-bs-toggle="tooltip" data-placement="top" title="Wishlist"><i class="zmdi zmdi-favorite-outline"></i></a>
-													<a href="#" data-bs-toggle="modal"  data-bs-target="#productModal" title="Quick View"><i class="zmdi zmdi-zoom-in"></i></a>
-													<a href="#" data-bs-toggle="tooltip" data-placement="top" title="Compare"><i class="zmdi zmdi-refresh"></i></a>
-													<a href="cart.html" data-bs-toggle="tooltip" data-placement="top" title="Add To Cart"><i class="zmdi zmdi-shopping-cart-plus"></i></a>
+													<a href="/order/wishlist/" data-bs-toggle="tooltip" data-placement="top" title="Wishlist"><i class="zmdi zmdi-favorite-outline"></i></a>
+													<a href="{% url 'shop:singleproduct' pro.id %}"  data-bs-target="tooltip" title="Quick View"><i class="zmdi zmdi-zoom-in"></i></a>
+													<a href="/" data-bs-toggle="tooltip" data-placement="top" title="Compare"><i class="zmdi zmdi-refresh"></i></a>
+													<a href="/order/shopcart/" data-bs-toggle="tooltip" data-placement="top" title="Add To Cart"><i class="zmdi zmdi-shopping-cart-plus"></i></a>
 												</div>
 											</div>
 											<div class="product-info clearfix">
@@ -413,7 +373,7 @@
 													<p class="floatright hidden-sm">{{ pro.product.category }}</p>
 												</div>
 												<div class="fix">
-													<span class="pro-price floatleft">$ {{pro.sale_price}}</span>
+													<span class="pro-price floatleft"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span> {{pro.sale_price}}</span>
 													<span class="pro-rating floatright">
 														<a href="#"><i class="zmdi zmdi-star"></i></a>
 														<a href="#"><i class="zmdi zmdi-star"></i></a>
@@ -447,6 +407,9 @@
 					<!-- Section-title end -->
 					<div class="row">
 						<!-- Single-blog start -->
+						{% for img in banners_images %}
+						{% if img.blog_banner.all %}
+							{% for disc in img.blog_banner.all %}
 						<div class="col-lg-6">
 							<div class="single-blog mt-30">
 								<div class="row">
@@ -470,44 +433,16 @@
 									</div>
 									<div class="col-xl-6 col-md-5">
 										<div class="blog-photo">
-											<a href="#"><img src="{% static 'img/blog/1.jpg' %}" alt="" /></a>
+											<a href="#"><img style="width:270px;height:230px;" src="{{ disc.image.url }}" alt="" /></a>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 						<!-- Single-blog end -->
-						<!-- Single-blog start -->
-						<div class="col-lg-6">
-							<div class="single-blog mt-30">
-								<div class="row">
-									<div class="col-xl-6 col-md-7">
-										<div class="blog-info">
-											<div class="post-meta fix">
-												<div class="post-date floatleft"><span class="text-dark-red">30</span></div>
-												<div class="post-year floatleft">
-													<p class="text-uppercase text-dark-red mb-0">June, 2021</p>
-													<h4 class="post-title"><a href="#" tabindex="0">Farniture drawing 2021</a></h4>
-												</div>
-											</div>
-											<div class="like-share fix">
-												<a href="#"><i class="zmdi zmdi-favorite"></i><span>89 Like</span></a>
-												<a href="#"><i class="zmdi zmdi-comments"></i><span>59 Comments</span></a>
-												<a href="#"><i class="zmdi zmdi-share"></i><span>29 Share</span></a>
-											</div>
-											<p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered If you are going to use a passage  Lorem Ipsum, you alteration in some form.</p>
-											<a href="#" class="button-2 text-dark-red">Read more...</a>
-										</div>
-									</div>
-									<div class="col-xl-6 col-md-5">
-										<div class="blog-photo">
-											<a href="#"><img src="{% static 'img/blog/2.jpg' %}" alt="" /></a>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<!-- Single-blog end -->
+						{% endfor %}
+						{% endif %}
+					{% endfor %}
 					</div>
 				</div>
 			</div>
@@ -528,6 +463,34 @@
 </div>
 {%endblock%}
 {%block footer%}{%include 'footer.html'%}{%endblock%}
-
+{%block javascript%}
+<script src="https://unpkg.com/@trevoreyre/autocomplete-js"></script>
+<script>
+    new Autocomplete('#autocomplete', {
+      search: input => {
+        const url = `{% url 'home:get_product' %}?search=${input}`;
+        return new Promise(resolve => {
+          fetch(url)
+            .then(response => response.json())
+            .then(data => {
+              
+  
+              // Check the structure of the response and resolve with the appropriate property
+              if (data.status === true) {
+                resolve(data.pro_list);  // Assuming 'pro_list' is the correct property
+              } else {
+                resolve([]);
+              }
+            })
+            .catch(error => {
+              console.error('Error fetching autocomplete data:', error);
+              resolve([]);
+            });
+        });
+      },
+      getResultValue: result => result.title,  // Adjust according to your data structure
+    });
+  </script>
+{%endblock%}
 
 

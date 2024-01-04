@@ -1,10 +1,10 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views import View
 from shop.models import Product
 from home.models import ContactMessage, SliderImage
 from django.contrib import messages
-
+from django.db.models import Q
 # Create your views here.
 
 # Home view to render the main page
@@ -24,6 +24,45 @@ def home(request):
         'product':product
         }
     return render(request,'index.html',context)
+
+
+class Search(View):
+    def get(self,request):
+        search = request.GET.get('search')  
+        pro_list = []
+
+        if search:
+            obj = Product.objects.filter(title__icontains=search)
+
+            for i in obj:
+                pro_list.append({
+                    'title': i.title
+                })
+
+        return JsonResponse({
+            'status': True,
+            'pro_list': pro_list
+        }) 
+    def post(self,request):
+        if request.method == 'POST':
+            products=Product.objects.filter(status=True).order_by('id')
+            search=request.POST.get('query')
+
+            if search:
+                products = products.filter(
+                    Q(title__icontains=search)
+                )
+                
+                context ={
+                'products':products,
+                }    
+                return render(request,'search_product.html',context)
+        else:
+            return self.get(request)    
+  
+            
+        
+        
 
 
 class Blog(View):

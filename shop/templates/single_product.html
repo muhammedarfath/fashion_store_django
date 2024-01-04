@@ -45,7 +45,7 @@
 								<!-- Single-pro-slider Big-photo end -->								
 								<div class="product-info">
 									<div class="fix">
-										<h4 class="post-title floatleft">dummy Product name</h4>
+										<h4 class="post-title floatleft">{{ product.title }}</h4>
 										<span class="pro-rating floatright">
 											<a href="#"><i class="zmdi zmdi-star"></i></a>
 											<a href="#"><i class="zmdi zmdi-star"></i></a>
@@ -56,10 +56,10 @@
 										</span>
 									</div>
 									<div class="fix mb-20">
-										<span class="pro-price">$ 56.20</span>
+										<span class="pro-price"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{product.sale_price}}</span>
 									</div>
 									<div class="product-description">
-										<p>There are many variations of passages of Lorem Ipsum available, but the majority have be suffered alteration in some form, by injected humou or randomised words which donot look even slightly believable. If you are going to use a passage of Lorem Ipsum. </p>
+										<p>{{ product.description }}.</p>
 									</div>
 									<!-- color start -->								
 									<div class="color-filter single-pro-color mb-20 clearfix">
@@ -76,38 +76,38 @@
 									</div>
 									<!-- color end -->
 									<!-- Size start -->
-								
-										<div class="dropdown">
-											<div class=" dropdown-width" >
-												<aside class="widget widget-size">
-													<div class="widget-info size-filter clearfix">
-														<ul>
-															<li><span style="margin-left: -25px;" class="color-title text-capitalize">size</span></li>
-															{% for size in product_sizes %}
-															<li><a class="active" href="?size_id={{ size.id }}">{{size.code}}</a></li>
-															{% endfor %}
-	
-														</ul>
-													</div>
-												</aside>
-												<!-- Widget-Size end -->
-											</div>
-										</div>	
+									<form action="{% url 'order:addtocart' product.id %}?size_id={{ size.id }}" method="post" class="cart">
+										{% csrf_token %}
+									<div class="dropdown">
+										<div class="dropdown-width">
+											<aside class="widget widget-size">
+												<div class="widget-info size-filter clearfix">
+													<ul>
+														<li><span style="margin-left: -25px;" class="color-title text-capitalize">size</span></li>
+														{% for size in product_sizes %}
+															<li>
+																<a href="" id="" onclick="changeColor(this); return false;" data-size-id="{{ size.id }}">{{ size.code }}</a>
+															</li>
+														{% endfor %}
+													</ul>
+												</div>
+											</aside>
+										</div>
+									</div>
 									
 									<!-- Size end -->
 									<div class="clearfix">
 										<div class="quick-add-to-cart">
-											<form action="{% url 'order:addtocart' product.id %}" method="post" class="cart">
-												{% csrf_token %}
 												<button class="single_add_to_cart_button" type="submit">Add to cart</button>
-											</form>
+											
 										</div>
 										<div class="product-action clearfix" style="width:10%;height: 40px;">
 											<button class="single_add_to_cart_button">
-											<a href="wishlist.html" data-bs-toggle="tooltip" data-placement="top" title="Wishlist"><i class="zmdi zmdi-favorite-outline"></i></a>
+											<a href="/order/wishlist/" data-bs-toggle="tooltip" data-placement="top" title="Wishlist"><i class="zmdi zmdi-favorite-outline"></i></a>
 											</button>
 										</div>
 									</div>
+								</form>
 									<!-- Single-pro-slider Small-photo start -->
 									<div class="single-pro-slider single-sml-photo slider-nav">
 										{% for img in product_images %}
@@ -269,5 +269,26 @@
 				</div>
 			</div>
 			<!-- PRODUCT-AREA END -->
+			
 {%endblock%}
 {%block footer%}{%include 'footer.html'%}{%endblock%}
+{%block javascript%}
+<script>
+	function changeColor(element) {
+		// Remove style attribute from all elements
+		var elements = document.querySelectorAll('.widget-info.size-filter a');
+		elements.forEach(function (el) {
+			el.removeAttribute('style');
+		});
+	
+		// Set color for the clicked element
+		element.style.backgroundColor = '#d3b484'; // Change this to your desired color
+	
+		// Update the form action with the selected size
+		var sizeId = element.getAttribute('data-size-id');
+		var form = document.querySelector('.cart');
+		form.action = form.action.split('?')[0] + '?size_id=' + sizeId;
+	}
+	
+</script>
+{%endblock%}

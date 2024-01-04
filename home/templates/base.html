@@ -11,7 +11,7 @@
 		<meta name="description" content="Hurst – Furniture Store eCommerce HTML Template is a clean and elegant design – suitable for selling flower, cookery, accessories, fashion, high fashion, accessories, digital, kids, watches, jewelries, shoes, kids, furniture, sports….. It has a fully responsive width adjusts automatically to any screen size or resolution.">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+		<link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
 		<!-- Place favicon.ico in the root directory -->
 
 		<!-- Google Font -->
@@ -124,13 +124,13 @@
             });
 			{% elif 'warning' in message.tags %}
             Swal.fire({
-              icon: "success",
+              icon: "warning",
               toast: true,
               position: "top-end",
               showConfirmButton: false,
               timer: 3000,
               timerProgressBar: true,
-              html: '<span>👋</span> {{ message }}',
+              html: '<span></span> {{ message }}',
               didOpen: (toast) => {
                 toast.addEventListener("mouseenter", Swal.stopTimer);
                 toast.addEventListener("mouseleave", Swal.resumeTimer);

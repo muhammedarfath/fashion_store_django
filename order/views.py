@@ -1,7 +1,7 @@
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render ,get_object_or_404
 from django.views import View
-from shop.models import Product
+from shop.models import Product, Size
 from order.models import Cart, Country, Order, OrderProduct, Payment, ShopCart, State, Town, Wishlist
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
@@ -25,6 +25,7 @@ class ShopyCart(View):
     total = 0
     def get(self,request):
         current_user = request.user
+        context = {}
         try:
             if current_user.is_authenticated:
                 cart_item = ShopCart.objects.filter(user=current_user)
@@ -36,32 +37,35 @@ class ShopyCart(View):
                 items.single_price = items.product.sale_price * items.quantity 
                 self.total += items.product.sale_price * items.quantity 
                 items.save()
+            tax = (2 * self.total) / 100
+            grand_total = self.total + tax
+            
+            
+            request.session['grand_total'] = float(grand_total)
+            
+            context = {
+                'cart_item':cart_item,
+                'grand_total':grand_total
+            }                
                 
         except ObjectDoesNotExist:
             pass
-        tax = (2 * self.total) / 100
-        grand_total = self.total + tax
-        
-        
-        request.session['grand_total'] = float(grand_total)
-        
-        context = {
-            'cart_item':cart_item,
-            'grand_total':grand_total
-        }
+
         return render(request,'cart.html',context)
     
 
   
   
 # View for adding a product to the shopping cart  
-class AddToCart(View):  
+class AddToCart(View): 
     def post(self,request,id):
         current_user = request.user
+        size_id = request.GET.get('size_id') 
+        size_instance = Size.objects.get(id=size_id) 
         if request.method == 'POST':
             product = Product.objects.get(id=id)
             if current_user.is_authenticated:
-                cart_item = ShopCart.objects.filter(user=current_user,product=product).first()
+                cart_item = ShopCart.objects.filter(user=current_user,product=product,size=size_instance).first()
                 wislistitem = Wishlist.objects.filter(user=current_user,product=product)
                 if wislistitem:
                     wislistitem.delete()
@@ -74,6 +78,7 @@ class AddToCart(View):
                     new_item.user=current_user
                     new_item.product=product
                     new_item.quantity=1
+                    new_item.size = size_instance
                     new_item.save()
                     return redirect('/order/shopcart/')
             else:
@@ -93,6 +98,7 @@ class AddToCart(View):
                     new_item.cart_item=cart
                     new_item.product=product
                     new_item.quantity=1
+                    new_item.size = size_instance
                     new_item.save()
                     return redirect('/order/shopcart/')       
         else:
@@ -156,17 +162,21 @@ class AddToWishList(View):
 class CheckOut(View):
     def get(self,request):
         current_user = request.user
-        cart_item = ShopCart.objects.filter(user=current_user)
-        if current_user.is_authenticated and cart_item:
-            grand_total = request.session.get('grand_total') * 100
-            context = {
-                'cart_item':cart_item,
-                'grand_total':grand_total
-            }
-            return render(request,'checkout.html',context)    
+        if current_user.is_authenticated:
+            cart_item = ShopCart.objects.filter(user=current_user)
+            if  cart_item:
+                grand_total = request.session.get('grand_total') * 100
+                context = {
+                    'cart_item':cart_item,
+                    'grand_total':grand_total
+                }
+                return render(request,'checkout.html',context)  
+            else:
+                messages.error(request,'please check shopcart')
+                return redirect('/order/shopcart/')                  
         else:
-            messages.error(request,'please check login and shopcart')
-            return redirect('/order/shopcart/')
+            messages.error(request,'please check login')
+            return redirect('/')
         
     def post(self,request):
         total = 0

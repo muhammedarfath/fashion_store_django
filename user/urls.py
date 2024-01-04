@@ -16,6 +16,7 @@ urlpatterns = [
     path('logout/', never_cache(views.Logout.as_view()), name='logout'), 
     path('account/',views.Account.as_view(),name='account'),
     path('updatepassword/',views.UpdatePassword.as_view(),name='updatepassword'),
+    path('forgotpassword/',views.ForgotPassword.as_view(),name='forgotpassword'),
     
 
 ]

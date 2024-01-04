@@ -1,4 +1,6 @@
 from django.db import models
+
+from shop.models import Images
 # Create your models here.
 
 # SliderImage model represents images for a slider with status (True/False).
@@ -47,11 +49,11 @@ class Banners(models.Model):
         ('True', 'True'),
         ('False', 'False'),
     )
-    discount_banner = models.ImageField(blank=True,upload_to='images/')
+    discount_banner = models.ManyToManyField(Images, blank=True)
     product_banner = models.ImageField(blank=True,upload_to='images/')
     aboutus_banner = models.ImageField(blank=True,upload_to='images/')
     contact_banner = models.ImageField(blank=True,upload_to='images/')
-    blog_banner = models.ImageField(blank=True,upload_to='images/')
+    blog_banner = models.ManyToManyField(Images, blank=True, related_name='blog_banners')
     status=models.CharField(max_length=10,choices=STATUS)
     create_at=models.DateTimeField(auto_now_add=True)
     update_at=models.DateTimeField(auto_now=True)

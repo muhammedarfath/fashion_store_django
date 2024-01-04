@@ -38,11 +38,15 @@
                             <li>
                                 <a class="cart-icon" href="#">
                                     <i class="zmdi zmdi-shopping-cart"></i>
+                                    {% if shopcart_details %}
                                     <span>{{shopcart_details.count}}</span>
+                                    {% else %}
+                                    <span>0</span>
+                                    {% endif %}
                                 </a>
                                 <div class="mini-cart-brief text-left">
                                     <div class="cart-items">
-                                        <p class="mb-0">You have <span>{{shopcart_details.count}}items</span> in your shopping bag</p>
+                                        <p class="mb-0">You have <span>{% if shopcart_details %} {{shopcart_details.count}} {% else %} 0 {% endif %}items</span> in your shopping bag</p>
                                     </div>
                                     <div class="all-cart-product clearfix">
                                         {% for pro in shopcart_details %}
@@ -52,7 +56,7 @@
                                             </div>
                                             <div class="cart-info">
                                                 <h5><a href="#">{{pro.product.title}}</a></h5>
-                                                <p class="mb-0">Price : $ {{pro.product.sale_price}}</p>
+                                                <p class="mb-0">Price : <span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span> {{pro.product.sale_price}}</p>
                                                 <p class="mb-0">Qty : {{ pro.quantity }} </p>
                                                 <span class="cart-delete"><a href="#"><i class="zmdi zmdi-close"></i></a></span>
                                             </div>
@@ -61,11 +65,11 @@
 
                                     </div>
                                     <div class="cart-totals">
-                                        <h5 class="mb-0">Total <span class="floatright">$500.00</span></h5>
+                                        <h5 class="mb-0">Total <span class="floatright"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>500.00</span></h5>
                                     </div>
                                     <div class="cart-bottom  clearfix">
                                         <a href="/order/shopcart/" class="button-one floatleft text-uppercase" data-text="View cart">View cart</a>
-                                        <a href="checkout.html" class="button-one floatright text-uppercase" data-text="Check out">Check out</a>
+                                        <a href="/order/checkout/" class="button-one floatright text-uppercase" data-text="Check out">Check out</a>
                                     </div>
                                 </div>
                             </li>
@@ -85,7 +89,6 @@
         <nav>
             <ul>
                 <li><a href="/">home</a>
-
                 </li>
                 <li><a href="/shop/products/">products</a>
                     <div class="mega-menu menu-scroll">
@@ -95,14 +98,18 @@
                                 <div class="half-width">
                                     <ul>
                                         <li class="menu-title">{{data.category.name}}</li>
-                                        <li><a href="#">{{data.name}}</a></li>
-
+                                        <li><a href="/shop/products/?categories={{ data.id }}">{{data.name}}</a></li>
+                                        
                                     </ul>
                                 </div>
                                 {% endfor %}
                                 <div class="full-width">
                                     <div class="mega-menu-img">
-                                        <a href="single-product.html"><img src="" alt="banner" /></a>
+                                        {% for img in banners_images %}
+                                            {% if img.product_banner and forloop.counter == 1 %}
+                                                <a href="single-product.html"><img src="{{ img.product_banner.url }}" alt="banner" /></a>
+                                            {% endif %}
+                                        {% endfor %}
                                     </div>
                                 </div>
                                 <div class="pb-80"></div>
