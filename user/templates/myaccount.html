@@ -167,13 +167,33 @@
 											</div>
 										</div>
 									</div>
-									<div class="panel">
-										<div class="my-account-menu my-account-menu-2" >
-											<a  href="wishlist.html" >
-											My Wishlist
+									<div class="panel mb-2 mb-md-0">
+										<div class="my-account-menu">
+											<a class="collapsed"  data-bs-toggle="collapse"  href="#coupon">
+											Coupon
 											</a>
 										</div>
-									</div>
+										<div id="coupon" class="panel-collapse collapse" data-bs-parent="#accordion">
+											<div class="panel-body">
+												<div class="our-order payment-details shop-cart-table">
+													{% for co in coupon %}
+													<div class="card w-70">
+														<div class="card-body">
+															<h5 class="card-title">{{ co.offer_name }}</h5>
+															<p>Coupon Id: {{ co.code }}</p>
+															<a href="single-product.html"><img style="height:50px;width:50px;" src="{{ co.image.url }}" alt="image" /></a>
+
+															<button type="submit" data-text="add coupon" class="button-one submit-button mt-15">Use Coupon</button>		
+
+														</div>
+													</div>
+													<br>
+													{% endfor %}	
+																	
+												</div>
+											</div>
+										</div>
+									</div>	
 								</div>								
 							</div>
 						</div>

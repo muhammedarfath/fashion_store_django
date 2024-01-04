@@ -59,51 +59,55 @@ class ShopyCart(View):
 # View for adding a product to the shopping cart  
 class AddToCart(View): 
     def post(self,request,id):
+        url = request.META.get("HTTP_REFERER")
         current_user = request.user
         size_id = request.GET.get('size_id') 
-        size_instance = Size.objects.get(id=size_id) 
-        if request.method == 'POST':
-            product = Product.objects.get(id=id)
-            if current_user.is_authenticated:
-                cart_item = ShopCart.objects.filter(user=current_user,product=product,size=size_instance).first()
-                wislistitem = Wishlist.objects.filter(user=current_user,product=product)
-                if wislistitem:
-                    wislistitem.delete()
-                if cart_item:
-                    cart_item.quantity += 1
-                    cart_item.save()
-                    return redirect('/order/shopcart/')  
+        if size_id:
+            size_instance = Size.objects.get(id=size_id) 
+            if request.method == 'POST':
+                product = Product.objects.get(id=id)
+                if current_user.is_authenticated:
+                    cart_item = ShopCart.objects.filter(user=current_user,product=product,size=size_instance).first()
+                    wislistitem = Wishlist.objects.filter(user=current_user,product=product)
+                    if wislistitem:
+                        wislistitem.delete()
+                    if cart_item:
+                        cart_item.quantity += 1
+                        cart_item.save()
+                        return redirect('/order/shopcart/')  
+                    else:
+                        new_item=ShopCart()  
+                        new_item.user=current_user
+                        new_item.product=product
+                        new_item.quantity=1
+                        new_item.size = size_instance
+                        new_item.save()
+                        return redirect('/order/shopcart/')
                 else:
-                    new_item=ShopCart()  
-                    new_item.user=current_user
-                    new_item.product=product
-                    new_item.quantity=1
-                    new_item.size = size_instance
-                    new_item.save()
-                    return redirect('/order/shopcart/')
+                    try:
+                        cart =  Cart.objects.get(cart_id =_cart_id(request))    
+                    except Cart.DoesNotExist:
+                        cart = Cart.objects.create(cart_id =_cart_id(request))   
+                        
+                    cart.save()     
+                    cart_item = ShopCart.objects.filter(cart_item=cart,product=product)
+                    if cart_item:
+                        cart_item.quantity += 1
+                        cart_item.save()
+                        return redirect('/order/shopcart/')  
+                    else:
+                        new_item=ShopCart()  
+                        new_item.cart_item=cart
+                        new_item.product=product
+                        new_item.quantity=1
+                        new_item.size = size_instance
+                        new_item.save()
+                        return redirect('/order/shopcart/')       
             else:
-                try:
-                    cart =  Cart.objects.get(cart_id =_cart_id(request))    
-                except Cart.DoesNotExist:
-                    cart = Cart.objects.create(cart_id =_cart_id(request))   
-                    
-                cart.save()     
-                cart_item = ShopCart.objects.filter(cart_item=cart,product=product)
-                if cart_item:
-                    cart_item.quantity += 1
-                    cart_item.save()
-                    return redirect('/order/shopcart/')  
-                else:
-                    new_item=ShopCart()  
-                    new_item.cart_item=cart
-                    new_item.product=product
-                    new_item.quantity=1
-                    new_item.size = size_instance
-                    new_item.save()
-                    return redirect('/order/shopcart/')       
+                return self.get(request,id)    
         else:
-            return self.get(request,id)    
-            
+            messages.error(request,'please select size')  
+            return redirect(url)      
 
 class RemoveCart(View):
     def get(self,request,id):
@@ -284,7 +288,7 @@ class CheckOut(View):
             
             
 class PaymentStatus(View):
-    def get(self,request):
+    def post(self,request):
         razorpay=request.GET.get('razorpay')
         if razorpay:
             response = request.POST

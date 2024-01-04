@@ -78,36 +78,37 @@
 									<!-- Size start -->
 									<form action="{% url 'order:addtocart' product.id %}?size_id={{ size.id }}" method="post" class="cart">
 										{% csrf_token %}
-									<div class="dropdown">
-										<div class="dropdown-width">
-											<aside class="widget widget-size">
-												<div class="widget-info size-filter clearfix">
-													<ul>
-														<li><span style="margin-left: -25px;" class="color-title text-capitalize">size</span></li>
-														{% for size in product_sizes %}
-															<li>
-																<a href="" id="" onclick="changeColor(this); return false;" data-size-id="{{ size.id }}">{{ size.code }}</a>
-															</li>
-														{% endfor %}
-													</ul>
-												</div>
-											</aside>
+										<div class="dropdown">
+											<div class="dropdown-width">
+												<aside class="widget widget-size">
+													<div class="widget-info size-filter clearfix">
+														<ul>
+															<li><span style="margin-left: -25px;" class="color-title text-capitalize">size</span></li>
+															{% for size in product_sizes %}
+																<li>
+																	<a href="" id="" onclick="changeColor(this); return false;" data-size-id="{{ size.id }}">{{ size.code }}</a>
+																</li>
+															{% endfor %}
+														</ul>
+													</div>
+												</aside>
+											</div>
 										</div>
-									</div>
 									
-									<!-- Size end -->
-									<div class="clearfix">
-										<div class="quick-add-to-cart">
-												<button class="single_add_to_cart_button" type="submit">Add to cart</button>
-											
-										</div>
+									    <!-- Size end -->
+										<div class="clearfix">
+											<div class="quick-add-to-cart">
+													<button class="single_add_to_cart_button" type="submit">Add to cart</button>
+												
+											</div>
+									</form>	
 										<div class="product-action clearfix" style="width:10%;height: 40px;">
-											<button class="single_add_to_cart_button">
-											<a href="/order/wishlist/" data-bs-toggle="tooltip" data-placement="top" title="Wishlist"><i class="zmdi zmdi-favorite-outline"></i></a>
+											<button type="button" class="single_add_to_cart_button">
+											<a href="{% url 'order:addtowishlist' product.id %}" data-bs-toggle="tooltip" data-placement="top" title="Wishlist"><i class="zmdi zmdi-favorite-outline"></i></a>
 											</button>
 										</div>
 									</div>
-								</form>
+								
 									<!-- Single-pro-slider Small-photo start -->
 									<div class="single-pro-slider single-sml-photo slider-nav">
 										{% for img in product_images %}

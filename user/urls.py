@@ -17,7 +17,8 @@ urlpatterns = [
     path('account/',views.Account.as_view(),name='account'),
     path('updatepassword/',views.UpdatePassword.as_view(),name='updatepassword'),
     path('forgotpassword/',views.ForgotPassword.as_view(),name='forgotpassword'),
-    
+    path("resetpassword_validate/<uidb64>/<token>/",views.ResetpasswordValidate.as_view(),name="resetpassword_validate"),
+    path('resetpassword/',views.ResetPassword.as_view(),name='resetpassword'),
 
 ]
 
