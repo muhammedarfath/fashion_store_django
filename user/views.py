@@ -151,10 +151,10 @@ class Account(View):
         coupon = Coupon.objects.filter(active=True) 
         form = PasswordChangeForm(user)
         orderproduct = OrderProduct.objects.filter(user=user)
-
+        user_profile = UserProfile.objects.filter(user=user).first()
         context={
             'user':user,
-            'account':UserProfile.objects.get(user = user),
+            'account':user_profile,
             'form':form,
             'orderproduct':orderproduct,
             'coupon':coupon

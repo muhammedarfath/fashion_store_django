@@ -116,7 +116,7 @@
       															<td class="product-subtotal" id="single-price-{{ item.product.id }}">${{ item.single_price }}</td>
 
 																<td class="product-remove">
-																	<a href="{% url 'order:remove_cart' item.product.id %}"><i class="zmdi zmdi-close"></i></a>
+																	<a href="{% url 'order:remove_cart' item.id %}"><i class="zmdi zmdi-close"></i></a>
 																</td>
 															</tr>
                                                             {% endfor %}
@@ -129,8 +129,11 @@
 													<div class="customer-login mt-30">
 														<h4 class="title-1 title-border text-uppercase">coupon discount</h4>
 														<p class="text-gray">Enter your coupon code if you have one!</p>
-														<input type="text" placeholder="Enter your code here.">
-														<button type="submit" data-text="apply coupon" class="button-one submit-button mt-15">apply coupon</button>
+														<form id="couponForm" data-url="{% url 'order:shopcart' %}" method="post">
+															{% csrf_token %}
+															<input name="coupon" type="text" placeholder="Enter your code here.">
+															<button type="button" data-text="apply coupon" class="button-one submit-button mt-15" onclick="applyCoupon()">apply coupon</button>
+														</form>
 													</div>
 												</div>
 												<div class="col-md-6">
@@ -139,20 +142,23 @@
 														<table>
 															<tbody>
 																<tr>
-																	<td class="text-left">Cart Subtotal</td>
-																	<td class="text-end">$155.00</td>
+																	<td class="text-left">Total</td>
+																	<td class="text-end">${{total}}</td>
 																</tr>
+																{% if coupon %}
 																<tr>
-																	<td class="text-left">Cart Subtotal</td>
-																	<td class="text-end">$15.00</td>
+																	<td class="text-left">Coupon Discount</td>
+																	<td id="coupon" class="text-end">${{coupon }}</td>
 																</tr>
+																{% endif %}
 																<tr>
-																	<td class="text-left">Vat</td>
-																	<td class="text-end">$00.00</td>
+																	<td class="text-left">Tax</td>
+																	<td id="tax" class="text-end">${{tax}}</td>
 																</tr>
 																<tr>
 																	<td class="text-left">Order Total</td>
-																	<td class="text-end">${{grand_total}}</td>
+																	<td id="grand-total" class="text-end">${{grand_total}}</td>
+										
 																</tr>
 															</tbody>
 														</table>
@@ -183,8 +189,8 @@
 		 event.preventDefault();
 		 var productId = $(this).data('product-id');
 		 var action = $(this).data('action');
-		 console.log(action);
-
+         console.log(productId)
+		 console.log(action)
 		 $.ajax({
 			 type:'POST',
 			 url:'/order/change_quantity/',
@@ -194,8 +200,11 @@
 				 'csrfmiddlewaretoken': '{{ csrf_token }}',
 			 },
 			 success:function(data){
+				console.log('work')
 				 $('#quantity-input-'+productId).val(data.new_quantity);
 				 $('#single-price-' + productId).text('$' + data.new_single_price); 
+				 $('#grand-total').text('$' + data.grand_total);
+				 $('#tax').text('$' + data.tax);
 				 // Show message if action was not successful
 				 if  (data.status === 'Requested quantity exceeds available quantity') {
 					 $('#quantity-input-'+productId).val(data.new_quantity);
@@ -238,5 +247,39 @@
 	 })
 	})		
  </script>
+ <script>
+    function applyCoupon() {
+        var form = $('#couponForm');
+        var url = "{% url 'order:shopcart' %}";
+        var couponCode = $('input[name="coupon"]').val();
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {
+                'couponcode': couponCode,
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+            },
+            success: function (data) {
+                // Check if the response has a success key
+                if (data.success) {
+                    // Display success message
+                    alert(data.success);
+                    // Update the UI with relevant information
+                    $('#grand-total').text('$' + data.grand_total);
+                    $('#coupon').text('$' + data.coupon);
+                } else {
+                    // Display error message
+                    alert(data.error);
+                }
+            },
+            error: function (error) {
+                // Handle the error response
+                console.error(error);
+            }
+        });
+    }
+</script>
+
 
 {%endblock%}

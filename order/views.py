@@ -1,6 +1,8 @@
+from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render ,get_object_or_404
 from django.views import View
+from user.models import Coupon
 from shop.models import Product, Size
 from order.models import Cart, Country, Order, OrderProduct, Payment, ShopCart, State, Town, Wishlist
 from django.contrib import messages
@@ -39,19 +41,56 @@ class ShopyCart(View):
                 items.save()
             tax = (2 * self.total) / 100
             grand_total = self.total + tax
-            
-            
+            coupon = Coupon.objects.filter(is_expired = False)
+            for co in coupon:
+                if cart_item in coupon:
+                    return HttpResponse("true")
+               
             request.session['grand_total'] = float(grand_total)
             
             context = {
                 'cart_item':cart_item,
-                'grand_total':grand_total
+                'grand_total':grand_total,
+                'tax':tax,
+                'total':self.total
             }                
                 
         except ObjectDoesNotExist:
             pass
-
         return render(request,'cart.html',context)
+        
+    def post(self,request):
+        if request.method == "POST":
+            user = request.user
+            cart_items = ShopCart.objects.filter(user=user)
+            for item in cart_items:
+                self.total += item.single_price
+            tax = (2 * self.total) / 100
+            grand_total = self.total + tax
+            coupon_code = request.POST.get('couponcode')
+            coupon = Coupon.objects.filter(code=coupon_code,active=True).first()
+            if coupon:
+                current_time = timezone.now()
+                if current_time <= coupon.expiration_time and coupon.is_one_time_use == False and coupon.minimum_amount <= self.total:
+                    discount_amount = self.total - coupon.discount_price
+                    grand_total = discount_amount + tax
+                    
+                    request.session['discount'] = coupon.discount_price
+                    request.session['offername'] = coupon.offer_name
+                    
+                    response_data = {
+                        'coupon': coupon.discount_price,
+                        'tax': tax,
+                        'grand_total': grand_total,
+                        'success': f"Coupon '{coupon.offer_name}' applied successfully! You saved ₹{coupon.discount_price:.2f}",
+                    }            
+                    return JsonResponse(response_data)                    
+                else:
+                    return JsonResponse({'error': 'Invalid coupon ,check expire date and minimun amount'})   
+
+        
+
+            
     
 
   
@@ -90,7 +129,7 @@ class AddToCart(View):
                         cart = Cart.objects.create(cart_id =_cart_id(request))   
                         
                     cart.save()     
-                    cart_item = ShopCart.objects.filter(cart_item=cart,product=product)
+                    cart_item = ShopCart.objects.filter(cart_item=cart,product=product,size=size_instance).first()
                     if cart_item:
                         cart_item.quantity += 1
                         cart_item.save()
@@ -111,12 +150,11 @@ class AddToCart(View):
 
 class RemoveCart(View):
     def get(self,request,id):
-        product = Product.objects.get(id=id)
         if request.user.is_authenticated:
-            cart_item = ShopCart.objects.get(user=request.user,product=product)
+            cart_item = ShopCart.objects.get(user=request.user,id=id)
         else:
             cart = Cart.objects.get(cart_id=_cart_id(request))    
-            cart_item = ShopCart.objects.filter(cart_item=cart)  
+            cart_item = ShopCart.objects.filter(cart_item=cart,id=id)  
 
         cart_item.delete()
         messages.success(request,'item removed form cart')
@@ -169,7 +207,7 @@ class CheckOut(View):
         if current_user.is_authenticated:
             cart_item = ShopCart.objects.filter(user=current_user)
             if  cart_item:
-                grand_total = request.session.get('grand_total') * 100
+                grand_total = (request.session.get('grand_total', 0) - request.session.get('discount', 0)) 
                 context = {
                     'cart_item':cart_item,
                     'grand_total':grand_total
@@ -196,8 +234,8 @@ class CheckOut(View):
             address = request.POST.get('address')
             selected_payment_method = request.POST.get('selectedPaymentMethod')
             
-            
-            grand_total = request.session.get('grand_total', 0) * 100
+            coupon = request.session.get('discount', 0)
+            grand_total = (request.session.get('grand_total', 0) - request.session.get('discount', 0)) 
             requird_fields = [name,email,phone,country,state,city,address,selected_payment_method]
             if not all(requird_fields):
                 messages.error(request,'Please fill in all the required fields.')
@@ -207,11 +245,11 @@ class CheckOut(View):
             city_instance = Town.objects.get(name=city)
             
             
-            
             payment = Payment()
             payment.user = current_user
             payment.payment_method = selected_payment_method
             payment.amount_paid = grand_total
+            
             
             order_details = Order()
             order_details.user = current_user
@@ -222,6 +260,10 @@ class CheckOut(View):
             order_details.address = address
             order_details.country = country_instance
             order_details.state = state_instance
+            if coupon:
+                offer_name=request.session.get('offername')
+                coupon = Coupon.objects.get(offer_name=offer_name)
+                order_details.coupon = coupon
             order_details.city = city_instance
             order_details.order_total = grand_total
             
@@ -242,7 +284,7 @@ class CheckOut(View):
             
             if selected_payment_method == 'razorpay':
                 client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET))
-
+                grand_total = (request.session.get('grand_total', 0) - request.session.get('discount', 0)) * 100
                 payment_data = {
                     "amount": grand_total,
                     "currency": "INR",
@@ -315,15 +357,20 @@ class PaymentStatus(View):
                   
 class ChangeQuantity(View):
     def post(self,request):
+        grand_total = 0
         current_user = request.user
         product_id = request.POST.get('product_id')
         action = request.POST.get('action')
-        if request.user.is_authenticated:
-            cart_item = get_object_or_404(ShopCart, user=request.user, product = product_id)
+        if current_user.is_authenticated:
+            cart_item = get_object_or_404(ShopCart, user=current_user, product = product_id)
+            for cart_item in ShopCart.objects.filter(user=current_user):
+                grand_total += cart_item.product.sale_price * cart_item.quantity
         else:
             cart = Cart.objects.get(cart_id=_cart_id(request))
             cart_item = get_object_or_404(ShopCart,cart_item=cart,product = product_id)
-
+            for cart_item in ShopCart.objects.filter(cart_item=cart):
+                grand_total += cart_item.product.sale_price * cart_item.quantity            
+        
 
         if action == 'increment':
             if cart_item.quantity < cart_item.product.quantity:             
@@ -347,11 +394,16 @@ class ChangeQuantity(View):
                 return JsonResponse(data)
         cart_item.single_price = cart_item.product.sale_price * cart_item.quantity
         cart_item.save()      
-        
+
+
+        tax = (2 * grand_total) / 100
+        grand_total += tax        
         data = {
             'status':"success",
             'new_quantity': cart_item.quantity,
-            'new_single_price': cart_item.product.sale_price * cart_item.quantity,    
+            'new_single_price': cart_item.product.sale_price * cart_item.quantity,  
+            'tax':tax, 
+            'grand_total':grand_total 
         }  
         return JsonResponse(data)
 

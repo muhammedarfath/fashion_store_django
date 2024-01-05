@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from user.models import Coupon
 from shop.models import Product, Size
 # Create your models here.
 
@@ -19,6 +20,8 @@ class ShopCart(models.Model):
     size = models.CharField(max_length=20,null=True)
     single_price = models.FloatField(blank=True, null=True)
     order_total = models.FloatField(blank=True, null=True)
+
+
     def __str__(self):
         if self.user:
             return f"Cart for {self.user.username}"
@@ -97,6 +100,7 @@ class Order(models.Model):
     state = models.ForeignKey(State, on_delete=models.CASCADE, null=True)
     order_total = models.FloatField(blank=True, null=True)
     tax = models.FloatField(blank=True, null=True)
+    coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=10,choices=ORDERSTATUS, default="New",blank=True,null=True)
     create_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
