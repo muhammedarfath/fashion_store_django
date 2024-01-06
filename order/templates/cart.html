@@ -143,7 +143,7 @@
 															<tbody>
 																<tr>
 																	<td class="text-left">Total</td>
-																	<td class="text-end">${{total}}</td>
+																	<td class="text-end" id="total-area">${{ total }}</td>
 																</tr>
 																{% if coupon %}
 																<tr>
@@ -200,9 +200,10 @@
 				 'csrfmiddlewaretoken': '{{ csrf_token }}',
 			 },
 			 success:function(data){
-				console.log('work')
+				console.log(data.grand_total)
 				 $('#quantity-input-'+productId).val(data.new_quantity);
 				 $('#single-price-' + productId).text('$' + data.new_single_price); 
+				 $('#total-area').text('$' + data.total); 
 				 $('#grand-total').text('$' + data.grand_total);
 				 $('#tax').text('$' + data.tax);
 				 // Show message if action was not successful
@@ -239,9 +240,9 @@
 				 }
 
 			 },
-			 error:function(error){
-				 console.log('error',error);
-			 }
+			 error: function(error) {
+				console.log('Error:', error);
+			}
 		 })
 		 
 	 })

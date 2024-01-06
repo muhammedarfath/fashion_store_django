@@ -58,6 +58,8 @@
 														</thead>
 														<tbody>
                                                             {% for pro in wishlistitem %}
+															<form action="{% url 'order:addtocart' pro.product.id %}?size_id={{ pro.product.size.first.id }}" method="post" class="cart">
+																{% csrf_token %}
 															<tr>
 																<td class="product-thumbnail  text-left">
 																	<!-- Single-product start -->
@@ -68,26 +70,25 @@
 																		<div class="product-info">
 																			<h4 class="post-title"><a class="text-light-black" href="#">{{pro.product.title}}</a></h4>
 																			<p class="mb-0">Color :  Black</p>
-																			<p class="mb-0">Size : SL</p>
+																			<p class="mb-0">Size : {{ pro.size }}</p>
 																		</div>
 																	</div>
 																	<!-- Single-product end -->				
 																</td>
 																<td class="product-price">${{pro.product.sale_price}}</td>
 																<td class="product-stock">in stock</td>
+	
 																<td class="product-add-cart">
-																	<form action="{% url 'order:addtocart' pro.product.id %}" method="post">    
-																		{% csrf_token %}
 																		<button type="submit"> 
 																		<a class="text-light-black"><i class="zmdi zmdi-shopping-cart-plus"></i></a>
-																		</button> 
-																	</form>    
+																		</button>  
 																</td>
 																
 																<td class="product-remove">
 																	<a href="#"><i class="zmdi zmdi-close"></i></a>
 																</td>
 															</tr>
+														</form>
                                                             {% endfor %}
 														</tbody>
 													</table>

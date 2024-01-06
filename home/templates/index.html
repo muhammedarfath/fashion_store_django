@@ -262,11 +262,21 @@
 										<span class="pro-label new-label">new</span>
 										<a href="{% url 'shop:singleproduct' product.id %}"><img style="width:270px;height:270px;"  src="{{product.image.url}}" alt="" /></a>
 										<div class="product-action clearfix">
-											<a href="{% url 'order:addtowishlist' product.id %}" data-bs-toggle="tooltip" data-placement="top" title="Wishlist"><i class="zmdi zmdi-favorite-outline"></i></a>
+											<!-- Assuming 'product.size.first' returns the default size for the product -->
+											<a href="{% url 'order:addtowishlist' product.id %}?size_id={{ product.size.first.id }}"
+											data-bs-toggle="tooltip" data-placement="top" title="Wishlist">
+											<i class="zmdi zmdi-favorite-outline"></i>
+											</a>
 											<a href="{% url 'shop:singleproduct' product.id %}"  data-bs-target="tooltip" title="Quick View"><i class="zmdi zmdi-zoom-in"></i></a>
 											<a href="/" data-bs-toggle="tooltip" data-placement="top" title="Compare"><i class="zmdi zmdi-refresh"></i></a>
-											<a href="/order/shopcart/" data-bs-toggle="tooltip" data-placement="top" title="Add To Cart"><i class="zmdi zmdi-shopping-cart-plus"></i></a>
+											<form action="{% url 'order:addtocart' product.id %}?size_id={{ product.size.first.id }}" method="post" class="cart">
+												{% csrf_token %}
+											<button type="submit"> 
+											<a data-bs-toggle="tooltip" data-placement="top" title="Add To Cart"><i class="zmdi zmdi-shopping-cart-plus"></i></a>
+										    </button> 
+											</form>
 										</div>
+										
 									</div>
 									<div class="product-info clearfix">
 										<div class="fix">

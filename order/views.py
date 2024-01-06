@@ -34,7 +34,7 @@ class ShopyCart(View):
                 
             else:
                 cart = Cart.objects.get(cart_id=_cart_id(request))    
-                cart_item = ShopCart.objects.filter(cart_item=cart)
+                cart_item = ShopCart.objects.filter(cart_item=cart)  
             for items in cart_item:
                 items.single_price = items.product.sale_price * items.quantity 
                 self.total += items.product.sale_price * items.quantity 
@@ -101,6 +101,7 @@ class AddToCart(View):
         url = request.META.get("HTTP_REFERER")
         current_user = request.user
         size_id = request.GET.get('size_id') 
+    
         if size_id:
             size_instance = Size.objects.get(id=size_id) 
             if request.method == 'POST':
@@ -178,28 +179,41 @@ class WishListShow(View):
         return render(request,'wishlist.html',context)              
                 
 
+
 class AddToWishList(View):
-    def get(self,request,id):
+    def get(self, request, id):
         current_user = request.user
         if current_user.is_authenticated:
-            product = Product.objects.get(id=id)
-            wishlistitem = Wishlist.objects.filter(user=current_user,product=product)
-            cart_item = ShopCart.objects.filter(user=current_user, product=product)
-            if wishlistitem.exists():
-                messages.success(request,'this item is already added')
-                return redirect('/order/wishlist/')
-            elif cart_item:
-                messages.success(request,'this item is already added in the cart')
-                return redirect('/order/shopcart/')
-            else:
-                wishlistitem = Wishlist.objects.create(user=current_user,product=product)
-                wishlistitem.save()
-                messages.success(request,'item added to wishlist')
-                return redirect('/order/wishlist/')
-        else:
-            messages.warning(request,'please login')
-            return redirect('/')    
+            product = get_object_or_404(Product, id=id)
+            
+            # Retrieve the default size ID from the request
+            size_id = request.GET.get('size_id', None)
+            size = Size.objects.get(id=size_id)
+
+        
+            
+            # Check if the size is valid
+            if size and product.size.filter(name=size.name).exists():
+                wishlist_item = Wishlist.objects.filter(user=current_user, product=product, size=size.name)
+                cart_item = ShopCart.objects.filter(user=current_user, product=product)
                 
+                if wishlist_item.exists():
+                    messages.success(request, 'This item is already added to the wishlist')
+                    return redirect('/order/wishlist/')
+                elif cart_item.exists():
+                    messages.success(request, 'This item is already added to the cart')
+                    return redirect('/order/shopcart/')
+                else:
+                    Wishlist.objects.create(user=current_user, product=product, size=size.name)
+                    messages.success(request, 'Item added to wishlist')
+                    return redirect('/order/wishlist/')
+            else:
+                messages.warning(request, 'Invalid size or size not provided')
+                return redirect('/')
+        else:
+            messages.warning(request, 'Please login')
+            return redirect('/')
+          
     
 class CheckOut(View):
     def get(self,request):
@@ -356,63 +370,47 @@ class PaymentStatus(View):
                 return render(request,'order_complete.html',{'status':False})             
                   
 class ChangeQuantity(View):
-    def post(self,request):
-        grand_total = 0
+    def post(self, request):
         current_user = request.user
         product_id = request.POST.get('product_id')
         action = request.POST.get('action')
+        response_data = {}
+
         if current_user.is_authenticated:
-            cart_item = get_object_or_404(ShopCart, user=current_user, product = product_id)
-            for cart_item in ShopCart.objects.filter(user=current_user):
-                grand_total += cart_item.product.sale_price * cart_item.quantity
+            cart_item = get_object_or_404(ShopCart, user=current_user, product=product_id)
         else:
             cart = Cart.objects.get(cart_id=_cart_id(request))
-            cart_item = get_object_or_404(ShopCart,cart_item=cart,product = product_id)
-            for cart_item in ShopCart.objects.filter(cart_item=cart):
-                grand_total += cart_item.product.sale_price * cart_item.quantity            
-        
+            cart_item = get_object_or_404(ShopCart, cart_item=cart, product=product_id)
 
         if action == 'increment':
-            if cart_item.quantity < cart_item.product.quantity:             
+            if cart_item.quantity < cart_item.product.quantity:
                 cart_item.quantity += 1
             else:
-                data = {
-                    'status':"Requested quantity exceeds available quantity",
-                    'new_quantity': cart_item.quantity,
-                    'new_single_price': cart_item.product.sale_price * cart_item.quantity,    
-                }  
-                return JsonResponse(data)                
+                response_data['status'] = "Requested quantity exceeds available quantity"
         elif action == 'decrement':
             if cart_item.quantity > 1:
                 cart_item.quantity -= 1
             else:
-                data = {
-                    'status':"Zero quantity not allowed",
-                    'new_quantity': cart_item.quantity,
-                    'new_single_price': cart_item.product.sale_price * cart_item.quantity,    
-                }  
-                return JsonResponse(data)
+                response_data['status'] = "Zero quantity not allowed"
+
         cart_item.single_price = cart_item.product.sale_price * cart_item.quantity
-        cart_item.save()      
+        cart_item.save()
 
+        cart_items = ShopCart.objects.filter(user=current_user) if current_user.is_authenticated else ShopCart.objects.filter(cart_item=cart)
+        total = sum(cart_item.product.sale_price * cart_item.quantity for cart_item in cart_items)
 
-        tax = (2 * grand_total) / 100
-        grand_total += tax        
-        data = {
-            'status':"success",
-            'new_quantity': cart_item.quantity,
-            'new_single_price': cart_item.product.sale_price * cart_item.quantity,  
-            'tax':tax, 
-            'grand_total':grand_total 
-        }  
-        return JsonResponse(data)
-
-                    
+        tax = (2 * total) / 100
+        grand_total = tax + total
         
+        response_data.update({
+            'new_quantity': cart_item.quantity,
+            'new_single_price': cart_item.product.sale_price * cart_item.quantity,
+            'tax': tax,
+            'grand_total': grand_total,
+            'total':total
+        })
 
-            
-            
-            
+        return JsonResponse(response_data)
             
             
             

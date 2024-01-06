@@ -33,6 +33,7 @@ class ShopCart(models.Model):
 class Wishlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    size = models.CharField(max_length=20,null=True)
     added_at = models.DateTimeField(auto_now_add=True)
     quantity = models.IntegerField(null=True, default=1)
     
