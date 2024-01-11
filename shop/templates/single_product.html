@@ -226,19 +226,22 @@
 													</span>
 												</div>
 												<div class="reply-box">
-													<form action="#">
+													<form action="{% url 'shop:comment' product.id %}" method="post">
+														{% csrf_token %}
 														<div class="row">
+
 															<div class="col-md-6">
-																<input type="text" placeholder="Your name here..." name="name" />
-															</div>
-															<div class="col-md-6">
-																<input type="text" placeholder="Subject..." name="name" />
+																<input type="text" placeholder="Subject..." name="subject" />
 															</div>
 														</div>
 														<div class="row">
 															<div class="col-md-12">
-																<textarea class="custom-textarea" name="message" placeholder="Your review here..." ></textarea>
+																<textarea class="custom-textarea" name="comment" placeholder="Your review here..." ></textarea>
+																{% if orderproduct %}
 																<button type="submit" data-text="submit review" class="button-one submit-button mt-20">submit review</button>
+																{% else %}
+																You must purchase this product to post a review.
+																{% endif %}
 															</div>
 														</div>
 													</form>

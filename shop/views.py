@@ -1,8 +1,9 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.views import View
-from shop.models import Product, Variants
-
+from order.models import OrderProduct
+from shop.models import Comment, Product, Variants
+from django.contrib import messages
 # Create your views here.
 
 
@@ -21,6 +22,7 @@ class ProductsShow(View):
  
 class SingleProduct(View):
     def get(self, request, id):
+        current_user = request.user
         product = Product.objects.get(id=id)
         variants = Variants.objects.filter(product=product)
 
@@ -34,13 +36,38 @@ class SingleProduct(View):
 
         product_images = product.image_types.all()
         product_sizes = product.size.all()
-
+        if current_user:
+            orderproduct = OrderProduct.objects.filter(user=current_user,product=product).exists()
+        else:
+            orderproduct = None            
         context = {
             'product': product,
             'variant': productvariant,
             'product_images': product_images,
             'product_sizes': product_sizes,
             'selected_size_id': selected_size_id,
+            'orderproduct':orderproduct
         }
         return render(request, 'single_product.html', context)
+    
+    
+class Review(View):
+    def post(self,request,id):
+        product = Product.objects.get(id=id)
+        url = request.META.get('HTTP_REFERER')
+        if request.method == 'POST': 
+            sub = request.POST['subject']
+            comment = request.POST['comment']
+            data = Comment()
+            data.subject = sub
+            data.comment = comment
+            data.product=product
+            current_user= request.user
+            data.user=current_user
+            data.save() 
+            messages.success(request, "Your review has ben sent. Thank you for your interest.")
+            return redirect(url)
+        return redirect(url)
+                 
+    
    

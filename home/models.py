@@ -1,5 +1,4 @@
 from django.db import models
-
 from shop.models import Images
 # Create your models here.
 
