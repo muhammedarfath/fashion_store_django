@@ -191,19 +191,36 @@
 							</div>
 							<div class="col-md-12">
 								<!-- Pagination start -->
-								<div class="shop-pagination  text-center">
+								<div class="shop-pagination text-center">
 									<div class="pagination">
-										<ul>
-											<li><a href="#"><i class="zmdi zmdi-long-arrow-left"></i></a></li>
-											<li><a href="#">01</a></li>
-											<li><a class="active" href="#">02</a></li>
-											<li><a href="#">03</a></li>
-											<li><a href="#">04</a></li>
-											<li><a href="#">05</a></li>
-											<li><a href="#"><i class="zmdi zmdi-long-arrow-right"></i></a></li>
-										</ul>
+										{% if products.has_other_pages %}
+											<ul>
+												{% if products.has_previous %}
+													<li>
+														<a href="?page={{ products.previous_page_number }}">
+															<i class="zmdi zmdi-long-arrow-left"></i>
+														</a>
+													</li>
+												{% endif %}
+												{% for i in products.paginator.page_range %}
+													{% if products.number == i %}
+														<li><a href="#" class="active">{{ i }}</a></li>
+													{% else %}
+														<li><a href="?page={{ i }}">{{ i }}</a></li>
+													{% endif %}
+												{% endfor %}
+												{% if products.has_next %}
+													<li>
+														<a href="?page={{ products.next_page_number }}">
+															<i class="zmdi zmdi-long-arrow-right"></i>
+														</a>
+													</li>
+												{% endif %}
+											</ul>
+										{% endif %}
 									</div>
 								</div>
+								
 								<!-- Pagination end -->
 							</div>
 						</div>

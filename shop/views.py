@@ -4,6 +4,7 @@ from django.views import View
 from order.models import OrderProduct
 from shop.models import Comment, Product, Variants
 from django.contrib import messages
+from django.core.paginator import Paginator
 # Create your views here.
 
 
@@ -13,10 +14,16 @@ class ProductsShow(View):
         catid = request.GET.get('categories')
         if catid:
             products = Product.objects.filter(category__id=catid, status=True).order_by("id")
+            paginator = Paginator(products, 1)
+            page = request.GET.get("page")
         else:    
             products = Product.objects.all()
+            paginator = Paginator(products, 1)
+            page = request.GET.get("page")     
+        paged_product = paginator.get_page(page)      
         context = {
-            'products':products
+            'products':paged_product,
+    
         }
         return render(request,'shop.html',context)
  
