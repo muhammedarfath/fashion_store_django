@@ -26,6 +26,30 @@
 		font-size: 14px;
 		pointer-events: none;
 	}
+
+	.empty-cart-message {
+		text-align: center;
+		padding: 50px;
+		background-color: #f8f8f8;
+		border: 1px solid #ddd;
+		border-radius: 5px;
+		margin: 20px 0;
+	}
+
+	.empty-cart-message h3 {
+		color: #333;
+	}
+
+	.empty-cart-message p {
+		color: #555;
+		margin-bottom: 20px;
+	}
+
+	.empty-cart-message .btn-primary {
+		background-color: #fe4c50;
+		color: #fff;
+	}
+
 </style>
 
         <div class="wrapper bg-dark-white">
@@ -82,6 +106,7 @@
 															</tr>
 														</thead>
 														<tbody>
+														{% if cart_item %}
                                                             {% for item in cart_item %}
 															<tr>
 																<td class="product-thumbnail  text-left">
@@ -93,12 +118,13 @@
 																		<div class="product-info">
 																			<h4 class="post-title"><a class="text-light-black" href="#">{{ item.product.title }}</a></h4>
 																			<p class="mb-0">Color :  {{ item.porduct.color.name }}</p>
-																			<p class="mb-0">Size :     {{ item.size }}</p>
+																			<p class="mb-0" >Size :     {{ item.size }}</p>
+																			<input type="hidden" value="{{ item.size }}" id="sizeId">
 																		</div>
 																	</div>
 																	<!-- Single-product end -->												
 																</td>
-																<td class="product-price">${{item.product.sale_price}}</td>
+																<td class="product-price"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{item.product.sale_price}}</td>
 																<td class="product-quantity producty">
 																	<div class="cart-plus" style="color: #666; display: flex; align-items: center; justify-content: center;">
 																		<button class="commen decrement-button changequantity" data-action="decrement" data-product-id="{{ item.product.id }}">
@@ -113,13 +139,20 @@
 																	</div>
 																</td>
 																<!-- Add an ID to the element where you want to display the single price -->
-      															<td class="product-subtotal" id="single-price-{{ item.product.id }}">${{ item.single_price }}</td>
+      															<td class="product-subtotal" id="single-price-{{ item.product.id }}"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{ item.single_price }}</td>
 
 																<td class="product-remove">
 																	<a href="{% url 'order:remove_cart' item.id %}"><i class="zmdi zmdi-close"></i></a>
 																</td>
 															</tr>
                                                             {% endfor %}
+														{% else %}
+															<div class="empty-cart-message">
+																<h3>Your cart is empty</h3>
+																<p>Add some items to your cart and start shopping!</p>
+																<a href="/" type="button" data-text="shop now" class="button-one submit-button mt-15">Shop Now</a>
+															</div>
+														{% endif %}
 														</tbody>
 													</table>
 												</div>
@@ -143,21 +176,21 @@
 															<tbody>
 																<tr>
 																	<td class="text-left">Total</td>
-																	<td class="text-end" id="total-area">${{ total }}</td>
+																	<td class="text-end" id="total-area"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{ total }}</td>
 																</tr>
 																{% if coupon %}
 																<tr>
 																	<td class="text-left">Coupon Discount</td>
-																	<td id="coupon" class="text-end">${{coupon }}</td>
+																	<td id="coupon" class="text-end"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{coupon }}</td>
 																</tr>
 																{% endif %}
 																<tr>
 																	<td class="text-left">Tax</td>
-																	<td id="tax" class="text-end">${{tax}}</td>
+																	<td id="tax" class="text-end"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{tax}}</td>
 																</tr>
 																<tr>
 																	<td class="text-left">Order Total</td>
-																	<td id="grand-total" class="text-end">${{grand_total}}</td>
+																	<td id="grand-total" class="text-end"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{grand_total}}</td>
 										
 																</tr>
 															</tbody>
@@ -189,7 +222,9 @@
 		 event.preventDefault();
 		 var productId = $(this).data('product-id');
 		 var action = $(this).data('action');
+		 var size = $('#sizeId').val();
          console.log(productId)
+         console.log(size)
 		 console.log(action)
 		 $.ajax({
 			 type:'POST',
@@ -197,6 +232,7 @@
 			 data:{
 				 'product_id': productId,
 				 'action': action,
+				 'size':size,
 				 'csrfmiddlewaretoken': '{{ csrf_token }}',
 			 },
 			 success:function(data){

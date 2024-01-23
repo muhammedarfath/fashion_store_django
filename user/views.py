@@ -44,7 +44,7 @@ class Signup(View):
                 from_email = 'coloshope@gmail.com'
                 recipient_list = [form.cleaned_data['email']]
                 
-                # return HttpResponse(from_email)
+                
 
                 send_mail(subject, message, from_email, recipient_list)
                 
@@ -53,7 +53,8 @@ class Signup(View):
             else:
                 messages.warning(request, form.errors)
                 return redirect('/user/signup/')
-
+            
+# After Signup We Can Enter Otp
 class Otp(View):
     def post(self,request):
         if request.method == 'POST':
@@ -68,7 +69,6 @@ class Otp(View):
             otp_saved = request.session.get('signup_otp')
             if otp_entered == otp_saved:
                 username=request.session['user']
-                # print(username)
                 user = User.objects.get(username=username)
                 user.is_active = True
                 user.save()
@@ -144,7 +144,7 @@ class Logout(View):
         logout(request)
         return redirect('/')
 
-
+#User Account Details
 class Account(View):
     def get(self,request):
         user = request.user
@@ -196,7 +196,7 @@ class Account(View):
             messages.success(request,'profile updated successfully')
             return redirect("/user/account/")        
         
-    
+#User Can Update the Password    
 class UpdatePassword(View):
     def post(self,request):
         url = request.META.get("HTTP_REFERER")
@@ -217,6 +217,7 @@ class UpdatePassword(View):
             return render(request, "myaccount.html", {"form": form})    
 
 
+#If the user forgot the password at the time of login
 class ForgotPassword(View):
     def get(self,request):
         return render(request,'forgot_password.html')
@@ -249,7 +250,8 @@ class ForgotPassword(View):
                 else:
                     messages.error(request, "Account does not exist")
                     return redirect("/user/forgotpassword/")
-                
+
+# Reset Password after apply the forgot password                
 class ResetpasswordValidate(View):
     def get(self,request,uidb64, token):
         try:
@@ -267,7 +269,7 @@ class ResetpasswordValidate(View):
             return redirect("/")          
         
         
-        
+# Reset Password after apply the forgot password     
 class ResetPassword(View):
     def post(self,request):
         if request.method == "POST":

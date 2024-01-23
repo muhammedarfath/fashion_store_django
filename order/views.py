@@ -344,6 +344,19 @@ class CheckOut(View):
             
             
 class PaymentStatus(View):
+    def get(self,request):
+        try:
+            cod = 'cod'
+            random_chars = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=6))
+            payment_id = f'{cod}-{random_chars}'
+            order_number = request.session.get('order_number')
+            order = Order.objects.get(order_number=order_number)
+            order.payment.payment_id = payment_id
+            order.payment.save()
+            return render(request,'order_complete.html',{'status':True})
+        except:
+            return render(request,'order_complete.html',{'status':False}) 
+        
     def post(self,request):
         razorpay=request.GET.get('razorpay')
         if razorpay:
@@ -355,32 +368,23 @@ class PaymentStatus(View):
                 order.payment.save()
                 return render(request,'order_complete.html',{'status':True})
             except:
-                return render(request,'order_complete.html',{'status':False})  
+                return render(request,'order_complete.html',{'status':False})              
         else:
-            try:
-                cod = 'cod'
-                random_chars = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=6))
-                payment_id = f'{cod}-{random_chars}'
-                order_number = request.session.get('order_number')
-                order = Order.objects.get(order_number=order_number)
-                order.payment.payment_id = payment_id
-                order.payment.save()
-                return render(request,'order_complete.html',{'status':True})
-            except:
-                return render(request,'order_complete.html',{'status':False})             
-                  
+            return render(request,'razorpay.html')          
 class ChangeQuantity(View):
     def post(self, request):
         current_user = request.user
         product_id = request.POST.get('product_id')
         action = request.POST.get('action')
+        size = request.POST.get('size')
         response_data = {}
 
         if current_user.is_authenticated:
-            cart_item = get_object_or_404(ShopCart, user=current_user, product=product_id)
+            cart_item = get_object_or_404(ShopCart, user=current_user, product=product_id, size=size)
+
         else:
             cart = Cart.objects.get(cart_id=_cart_id(request))
-            cart_item = get_object_or_404(ShopCart, cart_item=cart, product=product_id)
+            cart_item = get_object_or_404(ShopCart, cart_item=cart, product=product_id, size=size)
 
         if action == 'increment':
             if cart_item.quantity < cart_item.product.quantity:

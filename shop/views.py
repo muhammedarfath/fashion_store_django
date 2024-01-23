@@ -1,5 +1,5 @@
-from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.http import HttpResponse, HttpResponseNotFound
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from order.models import OrderProduct
 from shop.models import Comment, Product, Variants
@@ -29,8 +29,12 @@ class ProductsShow(View):
  
 class SingleProduct(View):
     def get(self, request, id):
+        try:
+            product = get_object_or_404(Product, id=id)
+        except (ValueError, Product.DoesNotExist):
+            return HttpResponseNotFound("Product not found")
+
         current_user = request.user
-        product = Product.objects.get(id=id)
         variants = Variants.objects.filter(product=product)
 
         productvariant = []
@@ -43,21 +47,23 @@ class SingleProduct(View):
 
         product_images = product.image_types.all()
         product_sizes = product.size.all()
-        if current_user:
-            orderproduct = OrderProduct.objects.filter(user=current_user,product=product).exists()
+
+        # Check if the user is authenticated before filtering OrderProduct
+        if current_user.is_authenticated:
+            orderproduct = OrderProduct.objects.filter(user=current_user, product=product).exists()
         else:
-            orderproduct = None            
+            orderproduct = None
+
         context = {
             'product': product,
             'variant': productvariant,
             'product_images': product_images,
             'product_sizes': product_sizes,
             'selected_size_id': selected_size_id,
-            'orderproduct':orderproduct
+            'orderproduct': orderproduct
         }
         return render(request, 'single_product.html', context)
-    
-    
+ 
 class Review(View):
     def post(self,request,id):
         product = Product.objects.get(id=id)

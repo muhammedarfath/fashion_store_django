@@ -78,6 +78,7 @@
 									<!-- Size start -->
 									<form action="{% url 'order:addtocart' product.id %}?size_id={{ size.id }}" method="post" class="cart">
 										{% csrf_token %}
+										
 										<div class="dropdown">
 											<div class="dropdown-width">
 												<aside class="widget widget-size">
@@ -85,10 +86,12 @@
 														<ul>
 															<li><span style="margin-left: -25px;" class="color-title text-capitalize">size</span></li>
 															{% for size in product_sizes %}
-																<li>
-																	<a href="" id="" onclick="changeColor(this); return false;" data-size-id="{{ size.id }}">{{ size.code }}</a>
-																</li>
-															{% endfor %}
+															<li>
+																<a href="" id="" onclick="changeColor(this); return false;" data-size-id="{{ size.id }}">
+																	{{ size.code }}
+																</a>
+															</li>
+														{% endfor %}
 														</ul>
 													</div>
 												</aside>
