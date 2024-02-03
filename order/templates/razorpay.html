@@ -1,3 +1,5 @@
+<!-- Razorpay payment -->
+
 
 <style>
     /* Center the form and button */
@@ -44,7 +46,10 @@
         display: block; /* Center-align the image */
         margin: 0 auto; /* Center-align the image */
     }
-</style>
+</style>    
+
+
+
 <div class="payment-form-container">
     <div class="payment-form-box">
         <form action="{% url 'order:payment_status' %}" method="POST">
@@ -59,19 +64,20 @@
                 src="https://checkout.razorpay.com/v1/checkout.js"
                 data-key="rzp_test_dJ031uu0BTMT8W" 
                 data-amount="{{ order.amount }}" 
-                data-currency="{{order.currency}}"
-                data-order_id="{{order.id}}"
+                data-currency="INR"
+                data-order_id="{{ order.id }}"
                 data-buttontext="Continue with Razorpay"
                 data-name="WebShop"
                 data-description="online shopping cart"
                 data-image="https://example.com/your_logo.jpg"
-                data-prefill.name="{{order_details.user}}"
-                data-prefill.email="{{order_details.email}}"
+                data-prefill.name="{{ order_details.user }}"
+                data-prefill.email="{{ order_details.email }}"
                 data-theme.color="#F37254">
             </script>
-            <input type="hidden" custom="Hidden Element" name="hidden"/>
-            <input type="hidden" custom="Hidden Element" name="razorpay"/>
+
+            <!-- Add a hidden input for 'razorpay' -->
+            <input type="hidden" name="razorpay" value="{{ order.id }}">
+
         </form>
     </div>
 </div>
-

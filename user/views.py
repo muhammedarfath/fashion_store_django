@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout,update_session_auth_hash
 from django.http import Http404
 from user.models import Coupon, UserProfile
-from order.models import Cart, Country, OrderProduct, ShopCart, State, Town
+from order.models import Cart, Country, Order, OrderProduct, ShopCart, State, Town
 from order.views import _cart_id
 from .forms import SignupForm
 from django.views.decorators.cache import never_cache
@@ -77,7 +77,6 @@ class Otp(View):
             else:
                 messages.error(request, 'Invalid OTP. Please try again.')
 
-
 # User login area and checking cart item
 @method_decorator(never_cache, name='dispatch')       
 class Login(View):
@@ -134,8 +133,6 @@ class Login(View):
                 return redirect('/')
 
         raise Http404("Page not found") 
-
-
 
 # User logout and using never cache 
 @method_decorator(never_cache, name='dispatch')          
@@ -267,8 +264,7 @@ class ResetpasswordValidate(View):
         else:
             messages.success(request, "this link has been expired!")
             return redirect("/")          
-        
-        
+           
 # Reset Password after apply the forgot password     
 class ResetPassword(View):
     def post(self,request):
@@ -289,4 +285,24 @@ class ResetPassword(View):
         return render(request, "resetpassword.html")
                 
                 
+class CancelOrder(View):
+    template_name = 'myaccount.html'
+
+    def post(self, request, id):
+        
+        url = request.META.get("HTTP_REFERER")
+        if request.method == 'POST':
+            reason = request.POST.get('cancel_reason')
+            if not reason:
+                messages.error(request, "Cancel reason is required.")
+                return redirect(url)
+
+            orders = get_object_or_404(Order, id=id)
+            orders.user_note = reason
+            orders.status = "Canceled"
+            orders.save()
+
+            # Pass context to render function
+            return render(request, self.template_name, {'orders': orders})
+
             

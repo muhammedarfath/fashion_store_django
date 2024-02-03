@@ -19,6 +19,7 @@ urlpatterns = [
     path('forgotpassword/',views.ForgotPassword.as_view(),name='forgotpassword'),
     path("resetpassword_validate/<uidb64>/<token>/",views.ResetpasswordValidate.as_view(),name="resetpassword_validate"),
     path('resetpassword/',views.ResetPassword.as_view(),name='resetpassword'),
+    path('cancel_order/<int:id>/',views.CancelOrder.as_view(),name='cancel_order'),
 
 ]
 

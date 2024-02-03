@@ -1,0 +1,173 @@
+
+{% extends "adminbase.html" %}
+{% load static %}
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'adminpanel/app-assets/css/core/menu/menu-types/horizontal-menu.css'%}">
+<link rel="stylesheet" type="text/css" href="{% static 'adminpanel/app-assets/css/plugins/forms/form-validation.css'%}">
+<link rel="stylesheet" type="text/css" href="{% static 'adminpanel/app-assets/css/plugins/forms/form-wizard.css'%}">
+<!-- BEGIN: Vendor CSS-->
+<link rel="stylesheet" type="text/css" href="{% static 'adminpanel/app-assets/vendors/css/vendors.min.css'%}">
+<link rel="stylesheet" type="text/css" href="{% static 'adminpanel/app-assets/vendors/css/forms/wizard/bs-stepper.min.css'%}">
+<link rel="stylesheet" type="text/css" href="{% static 'adminpanel/app-assets/vendors/css/forms/select/select2.min.css'%}">
+<!-- END: Vendor CSS-->
+{% endblock %}
+{% block header%}{%include 'adminheader.html'%}{%endblock%}
+{% block body %}
+<style>
+    .form-control {
+        width: 100%;
+        overflow-x: auto; /* Enable horizontal scrolling if necessary */
+    }
+
+    #selectedImages {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 10px; /* Adjust the gap between images as needed */
+        padding: 5px; /* Optional padding for better appearance */
+        height: auto; /* Allow the container to grow in height */
+    }
+
+    #selectedImages option {
+        flex: 0 0 auto;
+        width: 100px; /* Adjust the width of each option as needed */
+        height: 100px; /* Adjust the height of each option as needed */
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center center;
+    }
+</style>
+<!-- BEGIN: Content-->
+<div class="app-content content ">
+    <div class="content-overlay"></div>
+    <div class="header-navbar-shadow"></div>
+    <div class="content-wrapper">
+        <div class="content-header row">
+            <div class="content-header-left col-md-9 col-12 mb-2">
+                <div class="row breadcrumbs-top">
+                    <div class="col-12">
+                        <div class="breadcrumb-wrapper">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="index.html">Home</a>
+                                </li>
+                   
+                                <li class="breadcrumb-item active">Add Coupon
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="content-header-right text-md-right col-md-3 col-12 d-md-block d-none">
+                <div class="form-group breadcrumb-right">
+                    <div class="dropdown">
+                        <button class="btn-icon btn btn-primary btn-round btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i data-feather="grid"></i></button>
+                        <div class="dropdown-menu dropdown-menu-right"><a class="dropdown-item" href="app-todo.html"><i class="mr-1" data-feather="check-square"></i><span class="align-middle">Todo</span></a><a class="dropdown-item" href="app-chat.html"><i class="mr-1" data-feather="message-square"></i><span class="align-middle">Chat</span></a><a class="dropdown-item" href="app-email.html"><i class="mr-1" data-feather="mail"></i><span class="align-middle">Email</span></a><a class="dropdown-item" href="app-calendar.html"><i class="mr-1" data-feather="calendar"></i><span class="align-middle">Calendar</span></a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content-body">
+
+            <!-- Vertical Wizard -->
+            <section class="vertical-wizard">
+                
+                <div class="bs-stepper vertical vertical-wizard-example">
+                    <div class="bs-stepper-header">
+                        <div class="step" data-target="#account-details-vertical">
+                            <button type="button" class="step-trigger">
+                                <span class="bs-stepper-box">1</span>
+                                <span class="bs-stepper-label">
+                                    <span class="bs-stepper-title">Coupon Details</span>
+                                    <span class="bs-stepper-subtitle">Setup Coupon Details</span>
+                                </span>
+                            </button>
+                        </div>
+
+
+                    </div>
+                    <div class="bs-stepper-content">
+                        <form action="{% url 'adminpanel:editcoupn' id=coupon.id  %}" enctype="multipart/form-data" method="post">
+                         {% csrf_token %}
+                        <div id="account-details-vertical" class="content">
+                            <div class="content-header">
+                                <h5 class="mb-0">Coupon Details</h5>
+                                <small class="text-muted">Enter Coupon All  Details.</small>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="color-select">Offer Name</label>
+                                    <input type="text" id="vertical-email" class="form-control" value="{{coupon.offer_name}}" placeholder="Enter Coupon Name" name="coupon_name" />
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="color-select">Offer Code</label>
+                                    <input type="text" id="vertical-email" value="{{coupon.code}}" class="form-control" placeholder="Enter Coupon Code" name="coupon_code" readonly/>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="color-select">Coupon Discount</label>
+                                    <input type="text" id="vertical-email" value="{{coupon.discount_price}}"  class="form-control" placeholder="Enter Coupon Discount" name="coupon_discount" />
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="product-image">Coupon Image</label>
+                                    <input type="file" name="coupon_image" id="product-image" class="form-control" accept="image/*" />
+                                    {% if coupon.image %}
+                                    <img src="{{coupon.image.url}}" width="50" height="50"/>
+                                    {% endif %}
+                                    <!-- The "accept" attribute restricts file selection to images only -->
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="vertical-email">Coupon Minimum Amount</label>
+                                    <input type="text" value="{{coupon.minimum_amount}}" id="vertical-email" class="form-control" placeholder="Enter Coupon Minimum Amount" name="coupon_minimum_amount" />
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="vertical-email">Coupon Expired Time</label>
+                                    <input type="datetime-local" value="{{ coupon.expiration_time|date:'Y-m-d\TH:i' }}" name="coupon_expiration_time" class="form-control" id="coupon-expiration-time">
+                                </div>
+                                <button type="submit" class="btn btn-success">
+                                    <span>Save</span>
+                                    
+                                </button> 
+                            </div>
+                            
+                        </div>
+                       
+           
+                    </form>
+              
+                    </div>
+                
+                </div>
+            </section>
+            <!-- /Vertical Wizard -->
+
+
+
+        </div>
+    </div>
+</div>
+<!-- END: Content-->
+
+<div class="sidenav-overlay"></div>
+<div class="drag-target"></div>
+
+<!-- BEGIN: Footer-->
+<footer class="footer footer-static footer-light">
+    <p class="clearfix mb-0"><span class="float-md-left d-block d-md-inline-block mt-25">COPYRIGHT &copy; 2021<a class="ml-25" href="https://1.envato.market/pixinvent_portfolio" target="_blank">Pixinvent</a><span class="d-none d-sm-inline-block">, All rights Reserved</span></span><span class="float-md-right d-none d-md-block">Hand-crafted & Made with<i data-feather="heart"></i></span></p>
+</footer>
+<button class="btn btn-primary btn-icon scroll-top" type="button"><i data-feather="arrow-up"></i></button>
+<!-- END: Footer-->
+
+
+
+{% endblock %}
+
+{%block javascript%}
+
+<!-- BEGIN: Page Vendor JS-->
+<script src="{% static 'adminpanel/app-assets/vendors/js/ui/jquery.sticky.js' %}"></script>
+<script src="{% static 'adminpanel/app-assets/vendors/js/forms/wizard/bs-stepper.min.js' %}"></script>
+<script src="{% static 'adminpanel/app-assets/vendors/js/forms/select/select2.full.min.js' %}"></script>
+<script src="{% static 'adminpanel/app-assets/vendors/js/forms/validation/jquery.validate.min.js' %}"></script>
+<!-- END: Page Vendor JS-->
+{%endblock%}

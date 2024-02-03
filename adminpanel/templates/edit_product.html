@@ -1,0 +1,365 @@
+
+{% extends "adminbase.html" %}
+{% load static %}
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'adminpanel/app-assets/css/core/menu/menu-types/horizontal-menu.css'%}">
+<link rel="stylesheet" type="text/css" href="{% static 'adminpanel/app-assets/css/plugins/forms/form-validation.css'%}">
+<link rel="stylesheet" type="text/css" href="{% static 'adminpanel/app-assets/css/plugins/forms/form-wizard.css'%}">
+<!-- BEGIN: Vendor CSS-->
+<link rel="stylesheet" type="text/css" href="{% static 'adminpanel/app-assets/vendors/css/vendors.min.css'%}">
+<link rel="stylesheet" type="text/css" href="{% static 'adminpanel/app-assets/vendors/css/forms/wizard/bs-stepper.min.css'%}">
+<link rel="stylesheet" type="text/css" href="{% static 'adminpanel/app-assets/vendors/css/forms/select/select2.min.css'%}">
+<!-- END: Vendor CSS-->
+{% endblock %}
+{% block header%}{%include 'adminheader.html'%}{%endblock%}
+{% block body %}
+<style>
+    .form-control {
+        width: 100%;
+        overflow-x: auto; /* Enable horizontal scrolling if necessary */
+    }
+
+    #selectedImages {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 10px; /* Adjust the gap between images as needed */
+        padding: 5px; /* Optional padding for better appearance */
+        height: auto; /* Allow the container to grow in height */
+    }
+
+    #selectedImages option {
+        flex: 0 0 auto;
+        width: 100px; /* Adjust the width of each option as needed */
+        height: 100px; /* Adjust the height of each option as needed */
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center center;
+    }
+</style>
+<!-- BEGIN: Content-->
+<div class="app-content content ">
+    <div class="content-overlay"></div>
+    <div class="header-navbar-shadow"></div>
+    <div class="content-wrapper">
+        <div class="content-header row">
+            <div class="content-header-left col-md-9 col-12 mb-2">
+                <div class="row breadcrumbs-top">
+                    <div class="col-12">
+                        <div class="breadcrumb-wrapper">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="/adminpanel/dashboard/">Home</a>
+                                </li>
+                      
+                                <li class="breadcrumb-item active">Edit Product
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="content-header-right text-md-right col-md-3 col-12 d-md-block d-none">
+                <div class="form-group breadcrumb-right">
+                    <div class="dropdown">
+                        <button class="btn-icon btn btn-primary btn-round btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i data-feather="grid"></i></button>
+                        <div class="dropdown-menu dropdown-menu-right"><a class="dropdown-item" href="app-todo.html"><i class="mr-1" data-feather="check-square"></i><span class="align-middle">Todo</span></a><a class="dropdown-item" href="app-chat.html"><i class="mr-1" data-feather="message-square"></i><span class="align-middle">Chat</span></a><a class="dropdown-item" href="app-email.html"><i class="mr-1" data-feather="mail"></i><span class="align-middle">Email</span></a><a class="dropdown-item" href="app-calendar.html"><i class="mr-1" data-feather="calendar"></i><span class="align-middle">Calendar</span></a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content-body">
+
+            <!-- Vertical Wizard -->
+            <section class="vertical-wizard">
+                
+                <div class="bs-stepper vertical vertical-wizard-example">
+                    <div class="bs-stepper-header">
+                        <div class="step" data-target="#account-details-vertical">
+                            <button type="button" class="step-trigger">
+                                <span class="bs-stepper-box">1</span>
+                                <span class="bs-stepper-label">
+                                    <span class="bs-stepper-title">Product Details</span>
+                                    <span class="bs-stepper-subtitle">Setup Product Details</span>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="step" data-target="#personal-info-vertical">
+                            <button type="button" class="step-trigger">
+                                <span class="bs-stepper-box">2</span>
+                                <span class="bs-stepper-label">
+                                    <span class="bs-stepper-title">Price Details</span>
+                                    <span class="bs-stepper-subtitle">Add Price Info</span>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="step" data-target="#address-step-vertical">
+                            <button type="button" class="step-trigger">
+                                <span class="bs-stepper-box">3</span>
+                                <span class="bs-stepper-label">
+                                    <span class="bs-stepper-title">Product Iamge</span>
+                                    <span class="bs-stepper-subtitle">Add Images</span>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="step" data-target="#social-links-vertical">
+                            <button type="button" class="step-trigger">
+                                <span class="bs-stepper-box">4</span>
+                                <span class="bs-stepper-label">
+                                    <span class="bs-stepper-title">Product Variants</span>
+                                    <span class="bs-stepper-subtitle">Add Variants</span>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bs-stepper-content">
+                        <form action="{% url 'adminpanel:editproduct' product.id %}" enctype="multipart/form-data" method="post">
+                         {% csrf_token %}
+                        <div id="account-details-vertical" class="content">
+                            <div class="content-header">
+                                <h5 class="mb-0">Product Details</h5>
+                                <small class="text-muted">Enter Product Name And Details.</small>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="color-select">Category</label>
+                                    <select name="category" id="color-select" class="form-control">
+                                        <option value="{{ product.category.id}}" selected>{{ product.category.name}}</option>
+
+                                        {% for cat in category %}
+                                        {% if cat.name != product.category.name %}
+                                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                        <!-- Add more color options as needed -->
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="vertical-email">Product Name</label>
+                                    <input type="text" id="vertical-email" value="{{product.title}}" class="form-control" placeholder="Enter Product Name" name="title" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="color-select">Color</label>
+                                    <select name="color" id="color-select" class="form-control">
+                                        
+                                        <option value="{{ product.color.id}}" selected>{{ product.color.name }}</option>
+                                        
+                                        {% for c in color %}
+                                        {% if c.id != product.color.id %}
+                                        <option value="{{ c.name }}">{{ c.name }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+
+                                        <!-- Add more color options as needed -->
+                                    </select>
+                                </div>
+                            
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="size-select">Size</label>
+                                    <select name="size" id="size-select" class="form-control" multiple>
+                                        {% for i in product.size.all%}
+                                        <option value="{{ i.id }}" selected>{{ i.name}}</option>
+                                        {% endfor %}
+
+                                         
+                                        {% for s in size %}
+                                        <option value="{{ s.name }}">{{ s.name }}</option>
+                                        {% endfor %}
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="vertical-username">Description</label>
+                                    <textarea name="description" type="text" id="vertical-username" class="form-control" placeholder="Enter Product Description">{{ product.description }}</textarea>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="vertical-email">Details</label>
+                                    <textarea name="detail" type="text" id="vertical-username" class="form-control" placeholder="Enter Product Details">{{ product.description }}</textarea>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <a class="btn btn-outline-secondary btn-prev" disabled>
+                                    <i data-feather="arrow-left" class="align-middle mr-sm-25 mr-0"></i>
+                                    <span class="align-middle d-sm-inline-block d-none">Previous</span>
+                                </a>
+                                <a class="btn btn-primary btn-next">
+                                    <span class="align-middle d-sm-inline-block d-none">Next</span>
+                                    <i data-feather="arrow-right" class="align-middle ml-sm-25 ml-0"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div id="personal-info-vertical" class="content">
+                            <div class="content-header">
+                                <h5 class="mb-0">Price Details</h5>
+                                <small>Enter Your Price Details.</small>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="vertical-first-name">Amount</label>
+                                    <input type="text" value="{{product.amount }}" name="amount" id="vertical-first-name" class="form-control" placeholder="Enter Sale Amount" />
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="vertical-last-name">Sale Price</label>
+                                    <input type="text" value="{{product.sale_price }}" name="sale_price" id="vertical-last-name" class="form-control" placeholder="Enter Sale Price" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="vertical-first-name">Quantity</label>
+                                    <input type="text" value="{{product.quantity}}" name="quantity" id="vertical-first-name" class="form-control" placeholder="Enter Product Quantity" />
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="vertical-last-name">Discount</label>
+                                    <input type="text" value="{{product.discount}}" name="discount" id="vertical-last-name" class="form-control" placeholder="Enter Discount" />
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <a class="btn btn-primary btn-prev">
+                                    <i data-feather="arrow-left" class="align-middle mr-sm-25 mr-0"></i>
+                                    <span class="align-middle d-sm-inline-block d-none">Previous</span>
+                                </a>
+                                <a class="btn btn-primary btn-next">
+                                    <span class="align-middle d-sm-inline-block d-none">Next</span>
+                                    <i data-feather="arrow-right" class="align-middle ml-sm-25 ml-0"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div id="address-step-vertical" class="content">
+                            <div class="content-header">
+                                <h5 class="mb-0">Product Iamge</h5>
+                                <small>Enter Your Product Images.</small>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="product-image">Product Image</label>
+                                    <input type="file" name="image" id="product-image" class="form-control" accept="image/*" />
+                                    {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="Product Image" width="100">
+                                   {% endif %}                        
+                                   </div>
+                            
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="product-image-types">Product Image Types</label>
+                                    <input type="file" name="image_types" id="product-image-types" class="form-control" multiple accept="image/*" />
+                                    {% for image in product.image_types.all %}
+                                    <img src="{{ image.image.url }}" alt="Product Image" width="100">
+                                    {% endfor %} 
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="color-select">Status</label>
+                                    <select name="status" id="color-select" class="form-control">
+                                        {% for s in product_status %}
+                                        <option value="{{ s.0 }}">{{ s.1 }}</option>
+                                        {% endfor %}
+
+                                    </select>
+                                </div>
+                            </div>
+                            
+     
+                            <div class="d-flex justify-content-between">
+                                <a class="btn btn-primary btn-prev">
+                                    <i data-feather="arrow-left" class="align-middle mr-sm-25 mr-0"></i>
+                                    <span class="align-middle d-sm-inline-block d-none">Previous</span>
+                                </a>
+                                <button type="submit" class="btn btn-success">
+                                    <span>Save</span>
+                                    
+                                </button> 
+                            </div>
+                        </div>
+                    </form>
+                    <form action="{% url 'adminpanel:add_variant' %}" method="post" enctype="multipart/form-data">      
+                        {% csrf_token %}           
+                            <div id="social-links-vertical" class="content">
+                            <div class="content-header">
+                                <h5 class="mb-0">Variant</h5>
+                                <small>Enter Your Variant.</small>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="form-label" for="color-select">Product</label>
+                                    <select name="product" id="color-select" class="form-control">
+                                        
+                                        <option value="{{ product.id }}">{{ product.id }}</option>
+                                        
+
+                                        <!-- Add more color options as needed -->
+                                    </select>
+                                </div>
+                               
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label class="form-label">Variant Types</label>
+                                    {% for pro in variant.variant.all %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="variant" id="variant{{ pro.id }}" value="{{ pro.id }}" checked>
+                                            <label class="form-check-label" for="variant{{ pro.id }}">
+                                                <strong style="color:red;">{{ pro.id }}</strong><img src="{{ pro.image.url }}" alt="Product Image" style="width: 50px; height: 50px;">
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group col-md-6">
+                                <label class="form-label" for="color-select">Status</label>
+                                <select name="status" id="color-select" class="form-control">
+                                    {% for s in variant_status %}
+                                    <option value="{{ s.0 }}">{{ s.1 }}</option>
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-primary btn-prev">
+                                    <i data-feather="arrow-left" class="align-middle mr-sm-25 mr-0"></i>
+                                    <span class="align-middle d-sm-inline-block d-none">Previous</span>
+                                </button>
+                                <button type='submit' class="btn btn-success">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+                
+                </div>
+            </section>
+            <!-- /Vertical Wizard -->
+
+
+
+        </div>
+    </div>
+</div>
+<!-- END: Content-->
+
+<div class="sidenav-overlay"></div>
+<div class="drag-target"></div>
+
+<!-- BEGIN: Footer-->   
+<footer class="footer footer-static footer-light">
+    <p class="clearfix mb-0"><span class="float-md-left d-block d-md-inline-block mt-25">COPYRIGHT &copy; 2021<a class="ml-25" href="https://1.envato.market/pixinvent_portfolio" target="_blank">Pixinvent</a><span class="d-none d-sm-inline-block">, All rights Reserved</span></span><span class="float-md-right d-none d-md-block">Hand-crafted & Made with<i data-feather="heart"></i></span></p>
+</footer>
+<button class="btn btn-primary btn-icon scroll-top" type="button"><i data-feather="arrow-up"></i></button>
+<!-- END: Footer-->
+
+
+
+{% endblock %}
+
+{%block javascript%}
+
+<!-- BEGIN: Page Vendor JS-->
+<script src="{% static 'adminpanel/app-assets/vendors/js/ui/jquery.sticky.js' %}"></script>
+<script src="{% static 'adminpanel/app-assets/vendors/js/forms/wizard/bs-stepper.min.js' %}"></script>
+<script src="{% static 'adminpanel/app-assets/vendors/js/forms/select/select2.full.min.js' %}"></script>
+<script src="{% static 'adminpanel/app-assets/vendors/js/forms/validation/jquery.validate.min.js' %}"></script>
+<!-- END: Page Vendor JS-->
+{%endblock%}

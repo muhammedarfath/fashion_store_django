@@ -10,7 +10,6 @@ class Cart(models.Model):
     cart_id = models.CharField(max_length=250, blank=True)
     date_added = models.DateField(auto_now_add=True)
 
-
 # ShopCart model represents items added to the shopping cart.
 class ShopCart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -28,8 +27,7 @@ class ShopCart(models.Model):
         else:
             return "Cart for unknown user"
 
-
-
+# Wishlist model represents items added to the user's wishlist.
 class Wishlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
@@ -41,13 +39,14 @@ class Wishlist(models.Model):
     def __str__(self):
         return f"{self.user.username}'s Wishlist"
      
-      
+# Country model represents a country.      
 class Country(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
 
+# State model represents a state within a country.
 class State(models.Model):
     name = models.CharField(max_length=100)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
@@ -55,17 +54,15 @@ class State(models.Model):
     def __str__(self):
         return self.name
 
+# Town model represents a town within a state.
 class Town(models.Model):
     name = models.CharField(max_length=100)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name    
-    
-    
-    
-    
-
+       
+# Payment model represents a payment made by a user.
 class Payment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     payment_id = models.CharField(max_length=100)
@@ -77,8 +74,7 @@ class Payment(models.Model):
     def __str__(self) -> str:
         return self.payment_id
 
-
-
+# Order model represents an order placed by a user.
 class Order(models.Model):
     ORDERSTATUS = (
     ("New", "New"),
@@ -101,6 +97,7 @@ class Order(models.Model):
     state = models.ForeignKey(State, on_delete=models.CASCADE, null=True)
     order_total = models.FloatField(blank=True, null=True)
     tax = models.FloatField(blank=True, null=True)
+    user_note = models.CharField(blank=True, max_length=100)
     coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=10,choices=ORDERSTATUS, default="New",blank=True,null=True)
     create_at = models.DateTimeField(auto_now_add=True)
@@ -109,7 +106,7 @@ class Order(models.Model):
     def __str__(self):
         return self.user_name
 
-
+# OrderProduct model represents products within an order.
 class OrderProduct(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     payment = models.ForeignKey(Payment, on_delete=models.CASCADE, blank=True, null=True)

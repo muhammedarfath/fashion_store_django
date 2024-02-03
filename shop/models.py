@@ -1,7 +1,7 @@
 from django.db import models
 from autoslug import AutoSlugField
 from django.contrib.auth.models import User
-# Create your models here.
+
 
 # Category model represents a product category.
 class Category(models.Model):
@@ -69,8 +69,6 @@ class Product(models.Model):
     def __str__(self):
         return self.title
     
-    
-
 # Variants model represents different variants/options for a product.
 class Variants(models.Model):
     STATUS = (
@@ -85,7 +83,7 @@ class Variants(models.Model):
     def __str__(self):
         return self.product.title
     
-    
+# Product Comments     
 class Comment(models.Model):
     STATUS = (
         ('New', 'New'),

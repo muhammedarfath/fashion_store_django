@@ -3,6 +3,8 @@
 {% load static %}
 {% block header%}{%include 'header.html'%}{%endblock%}
 {% block body %}
+
+<!-- cart style -->
 <style>
 	.commen{
 		background: #f6f6f6;
@@ -52,177 +54,180 @@
 
 </style>
 
-        <div class="wrapper bg-dark-white">
-			<!-- HEADING-BANNER START -->
-			<div class="heading-banner-area overlay-bg">
-				<div class="container">
-					<div class="row">
-						<div class="col-md-12">
-							<div class="heading-banner">
-								<div class="heading-banner-title">
-									<h2>Shopping Cart</h2>
-								</div>
-								<div class="breadcumbs pb-15">
-									<ul>
-										<li><a href="index.html">Home</a></li>
-										<li>Shopping Cart</li>
-									</ul>
-								</div>
-							</div>
+<div class="wrapper bg-dark-white">
+	<!-- HEADING-BANNER START -->
+	<div class="heading-banner-area overlay-bg">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="heading-banner">
+						<div class="heading-banner-title">
+							<h2>Shopping Cart</h2>
+						</div>
+						<div class="breadcumbs pb-15">
+							<ul>
+								<li><a href="index.html">Home</a></li>
+								<li>Shopping Cart</li>
+							</ul>
 						</div>
 					</div>
 				</div>
 			</div>
-			<!-- HEADING-BANNER END -->
-			<!-- SHOPPING-CART-AREA START -->
-			<div class="shopping-cart-area  pt-80 pb-80">
-				<div class="container">	
-					<div class="row">
-						<div class="col-lg-12">
-							<div class="shopping-cart">
-								<!-- Nav tabs -->
-								<ul class="cart-page-menu nav row clearfix mb-30">
-									<li><a class="active" href="{% url 'order:shopcart' %}">shopping cart</a></li>
-									<li><a href="{% url 'order:wishlist' %}">wishlist</a></li>
-									<li><a href="{% url 'order:checkout' %}">check out</a></li>
-									<li><a href="#order-complete" data-bs-toggle="tab">order complete</a></li>
-								</ul>
-
-								<!-- Tab panes -->
-								<div class="tab-content">
-									<!-- shopping-cart start -->
-									<div class="tab-pane active" id="shopping-cart">
-										<form action="#">
-											<div class="shop-cart-table">
-												<div class="table-content table-responsive">
-													<table>
-														<thead>
-															<tr>
-																<th class="product-thumbnail">Product</th>
-																<th class="product-price">Price</th>
-																<th class="product-quantity">Quantity</th>
-																<th class="product-subtotal">Total</th>
-																<th class="product-remove">Remove</th>
-															</tr>
-														</thead>
-														<tbody>
-														{% if cart_item %}
-                                                            {% for item in cart_item %}
-															<tr>
-																<td class="product-thumbnail  text-left">
-																	<!-- Single-product start -->
-																	<div class="single-product">
-																		<div class="product-img">
-																			<a href="single-product.html"><img src="{{ item.product.image.url }}" alt="" /></a>
-																		</div>
-																		<div class="product-info">
-																			<h4 class="post-title"><a class="text-light-black" href="#">{{ item.product.title }}</a></h4>
-																			<p class="mb-0">Color :  {{ item.porduct.color.name }}</p>
-																			<p class="mb-0" >Size :     {{ item.size }}</p>
-																			<input type="hidden" value="{{ item.size }}" id="sizeId">
-																		</div>
-																	</div>
-																	<!-- Single-product end -->												
-																</td>
-																<td class="product-price"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{item.product.sale_price}}</td>
-																<td class="product-quantity producty">
-																	<div class="cart-plus" style="color: #666; display: flex; align-items: center; justify-content: center;">
-																		<button class="commen decrement-button changequantity" data-action="decrement" data-product-id="{{ item.product.id }}">
-																			<span>-</span>
-																		</button>
-																
-																		<input id="quantity-input-{{ item.product.id }}" name="product_count" class="quantity-input" value="{{ item.quantity }}" min="1" readonly>
-																
-																		<button class="commen increment-button changequantity" data-action="increment" data-product-id="{{ item.product.id }}">
-																			<span>+</span>
-																		</button>
-																	</div>
-																</td>
-																<!-- Add an ID to the element where you want to display the single price -->
-      															<td class="product-subtotal" id="single-price-{{ item.product.id }}"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{ item.single_price }}</td>
-
-																<td class="product-remove">
-																	<a href="{% url 'order:remove_cart' item.id %}"><i class="zmdi zmdi-close"></i></a>
-																</td>
-															</tr>
-                                                            {% endfor %}
-														{% else %}
-															<div class="empty-cart-message">
-																<h3>Your cart is empty</h3>
-																<p>Add some items to your cart and start shopping!</p>
-																<a href="/" type="button" data-text="shop now" class="button-one submit-button mt-15">Shop Now</a>
-															</div>
-														{% endif %}
-														</tbody>
-													</table>
-												</div>
-											</div>
-											<div class="row">
-												<div class="col-md-6">
-													<div class="customer-login mt-30">
-														<h4 class="title-1 title-border text-uppercase">coupon discount</h4>
-														<p class="text-gray">Enter your coupon code if you have one!</p>
-														<form id="couponForm" data-url="{% url 'order:shopcart' %}" method="post">
-															{% csrf_token %}
-															<input name="coupon" type="text" placeholder="Enter your code here.">
-															<button type="button" data-text="apply coupon" class="button-one submit-button mt-15" onclick="applyCoupon()">apply coupon</button>
-														</form>
-													</div>
-												</div>
-												<div class="col-md-6">
-													<div class="customer-login payment-details mt-30">
-														<h4 class="title-1 title-border text-uppercase">payment details</h4>
-														<table>
-															<tbody>
-																<tr>
-																	<td class="text-left">Total</td>
-																	<td class="text-end" id="total-area"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{ total }}</td>
-																</tr>
-																{% if coupon %}
-																<tr>
-																	<td class="text-left">Coupon Discount</td>
-																	<td id="coupon" class="text-end"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{coupon }}</td>
-																</tr>
-																{% endif %}
-																<tr>
-																	<td class="text-left">Tax</td>
-																	<td id="tax" class="text-end"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{tax}}</td>
-																</tr>
-																<tr>
-																	<td class="text-left">Order Total</td>
-																	<td id="grand-total" class="text-end"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{grand_total}}</td>
-										
-																</tr>
-															</tbody>
-														</table>
-													</div>
-												</div>
-											</div>
-										</form>		
-									</div>
-									<!-- shopping-cart end -->
-								</div>
-
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<!-- SHOPPING-CART-AREA END -->
 		</div>
-		<!-- WRAPPER END -->
+	</div>
+	<!-- HEADING-BANNER END -->
+	<!-- SHOPPING-CART-AREA START -->
+	<div class="shopping-cart-area  pt-80 pb-80">
+		<div class="container">	
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="shopping-cart">
+						<!-- Nav tabs -->
+						<ul class="cart-page-menu nav row clearfix mb-30">
+							<li><a class="active" href="{% url 'order:shopcart' %}">shopping cart</a></li>
+							<li><a href="{% url 'order:wishlist' %}">wishlist</a></li>
+							<li><a href="{% url 'order:checkout' %}">check out</a></li>
+							<li><a href="#order-complete" data-bs-toggle="tab">order complete</a></li>
+						</ul>
+
+						<!-- Tab panes -->
+						<div class="tab-content">
+							<!-- shopping-cart start -->
+							<div class="tab-pane active" id="shopping-cart">
+								<form action="#">
+									<div class="shop-cart-table">
+										<div class="table-content table-responsive">
+											<table>
+												<thead>
+													<tr>
+														<th class="product-thumbnail">Product</th>
+														<th class="product-price">Price</th>
+														<th class="product-quantity">Quantity</th>
+														<th class="product-subtotal">Total</th>
+														<th class="product-remove">Remove</th>
+													</tr>
+												</thead>
+												<tbody>
+
+
+													{% if cart_item %}
+														{% for item in cart_item %}
+														<tr>
+															<td class="product-thumbnail  text-left">
+																<!-- Single-product start -->
+																<div class="single-product">
+																	<div class="product-img">
+																		<a href="single-product.html"><img src="{{ item.product.image.url }}" alt="" /></a>
+																	</div>
+																	<div class="product-info">
+																		<h4 class="post-title"><a class="text-light-black" href="#">{{ item.product.title }}</a></h4>
+																		<p class="mb-0">Color: {{ item.product.color.name }}</p>
+																		<p class="mb-0">Size: {{ item.size }}</p>
+																	</div>
+																</div>
+																<!-- Single-product end -->
+															</td>
+															<td class="product-price"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{ item.product.sale_price }}</td>
+															<td class="product-quantity producty">
+																<div class="cart-plus" style="color: #666; display: flex; align-items: center; justify-content: center;">
+																	<button class="commen decrement-button changequantity" data-action="decrement" data-product-id="{{ item.id }}" data-size="{{ item.size }}">
+																		<span>-</span>
+																	</button>
+																	
+																	<input id="quantity-input-{{ item.id }}" name="product_count" class="quantity-input" value="{{ item.quantity }}" min="1" readonly>
+																	
+																	<button class="commen increment-button changequantity" data-action="increment" data-product-id="{{ item.id }}" data-size="{{ item.size }}">
+																		<span>+</span>
+																	</button>
+																</div>
+															</td>
+															<!-- Add an ID to the element where you want to display the single price -->
+															<td class="product-subtotal" id="single-price-{{ item.id }}"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{ item.single_price }}</td>
+
+															<td class="product-remove">
+																<a href="{% url 'order:remove_cart' item.id %}"><i class="zmdi zmdi-close"></i></a>
+															</td>
+														</tr>
+														{% endfor %}
+													{% else %}
+														<div class="empty-cart-message">
+															<h3>Your cart is empty</h3>
+															<p>Add some items to your cart and start shopping!</p>
+															<a href="/" type="button" data-text="shop now" class="button-one submit-button mt-15">Shop Now</a>
+														</div>
+													{% endif %}
+
+												</tbody>
+											</table>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<div class="customer-login mt-30">
+												<h4 class="title-1 title-border text-uppercase">coupon discount</h4>
+												<p class="text-gray">Enter your coupon code if you have one!</p>
+												<form id="couponForm" data-url="{% url 'order:shopcart' %}" method="post">
+													{% csrf_token %}
+													<input name="coupon" type="text" placeholder="Enter your code here.">
+													<button type="button" data-text="apply coupon" class="button-one submit-button mt-15" onclick="applyCoupon()">apply coupon</button>
+												</form>
+											</div>
+										</div>
+										<div class="col-md-6">
+											<div class="customer-login payment-details mt-30">
+												<h4 class="title-1 title-border text-uppercase">payment details</h4>
+												<table>
+													<tbody>
+														<tr>
+															<td class="text-left">Total</td>
+															<td class="text-end" id="total-area"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{ total }}</td>
+														</tr>
+														{% if coupon %}
+														<tr>
+															<td class="text-left">Coupon Discount</td>
+															<td id="coupon" class="text-end"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{coupon }}</td>
+														</tr>
+														{% endif %}
+														<tr>
+															<td class="text-left">Tax</td>
+															<td id="tax" class="text-end"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{tax}}</td>
+														</tr>
+														<tr>
+															<td class="text-left">Order Total</td>
+															<td id="grand-total" class="text-end"><span style="font-family: 'Arial', 'Helvetica', sans-serif;">&#8377;</span>{{grand_total}}</td>
+								
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</div>
+								</form>		
+							</div>
+							<!-- shopping-cart end -->
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- SHOPPING-CART-AREA END -->
+</div>
+<!-- WRAPPER END -->
 
 
 {%endblock%}
 {%block footer%}{%include 'footer.html'%}{%endblock%}
 {%block javascript%}
+<!--change product quantity -->
 <script>
 	$(document).ready(function(){
 	 $('.changequantity').on('click',function(event){
 		 event.preventDefault();
 		 var productId = $(this).data('product-id');
 		 var action = $(this).data('action');
-		 var size = $('#sizeId').val();
+		 var size = $(this).data('size'); 
          console.log(productId)
          console.log(size)
 		 console.log(action)
@@ -236,12 +241,11 @@
 				 'csrfmiddlewaretoken': '{{ csrf_token }}',
 			 },
 			 success:function(data){
-				console.log(data.grand_total)
 				 $('#quantity-input-'+productId).val(data.new_quantity);
-				 $('#single-price-' + productId).text('$' + data.new_single_price); 
-				 $('#total-area').text('$' + data.total); 
-				 $('#grand-total').text('$' + data.grand_total);
-				 $('#tax').text('$' + data.tax);
+				 $('#single-price-' + productId).text('₹' + data.new_single_price); 
+				 $('#total-area').text('₹' + data.total); 
+				 $('#grand-total').text('₹' + data.grand_total);
+				 $('#tax').text('₹' + data.tax);
 				 // Show message if action was not successful
 				 if  (data.status === 'Requested quantity exceeds available quantity') {
 					 $('#quantity-input-'+productId).val(data.new_quantity);
@@ -262,7 +266,7 @@
 					 $('#quantity-input-'+productId).val(data.new_quantity);
 					 Swal.fire({
 						 icon: "error",
-						 title: "Zero quantity not allowed",  // Display the message text as the title
+						 title: "Zero quantity not allowed", 
 						 toast: true,
 						 position: "bottom-end",
 						 showConfirmButton: false,
@@ -283,7 +287,11 @@
 		 
 	 })
 	})		
- </script>
+</script>
+
+
+
+<!--add coupon -->
  <script>
     function applyCoupon() {
         var form = $('#couponForm');

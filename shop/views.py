@@ -51,10 +51,14 @@ class SingleProduct(View):
         # Check if the user is authenticated before filtering OrderProduct
         if current_user.is_authenticated:
             orderproduct = OrderProduct.objects.filter(user=current_user, product=product).exists()
+            comment = Comment.objects.filter(product=product)
+            
         else:
             orderproduct = None
-
+            comment = None
+        
         context = {
+            'comment':comment,
             'product': product,
             'variant': productvariant,
             'product_images': product_images,
