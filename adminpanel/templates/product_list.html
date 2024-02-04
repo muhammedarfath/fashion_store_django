@@ -62,7 +62,9 @@
                                         <td>{{ u.id }}</td>
 
                                         <td>
+                                            {% if u.image %}
                                             <img src="{{u.image.url}}" class="mr-75" height="70" width="70" alt="" />
+                                            {% endif %}
                                         </td>
                                         <td>{{ u.title }}</td>
                                         <td>{{ u.sale_price }}</td>

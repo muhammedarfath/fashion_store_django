@@ -83,7 +83,11 @@
                                                         <i data-feather="check" class="mr-1"></i>
                                                         <span class="card-text user-info-title font-weight-bold mb-0">STATUS</span>
                                                     </div>
-                                                    <p class="card-text mb-0">Active</p>
+                                                    {% if orders.order.status == 'Canceled' %}
+                                                    <div class="badge badge-light-danger">{{orders.order.status}}</div>
+                                                    {% else %}
+                                                    <p class="card-text mb-0 badge badge-light-primary">Active</p>
+                                                    {% endif %}
                                                 </div>
                                                 <div class="d-flex flex-wrap my-50">
                                                     <div class="user-info-title">
@@ -123,7 +127,10 @@
                                     </span>
                                 </div>
                                 <div class="card-body">
-                                    <div class="badge badge-light-primary">{{orders.order.status}}</div>
+                                    <div class="badge {% if orders.order.status == 'New' %}badge-light-primary{% elif orders.order.status == 'Accepted' %}badge-light-success{% elif orders.order.status == 'Preparing' %}badge-light-warning{% elif orders.order.status == 'OnShipping' %}badge-light-info{% elif orders.order.status == 'Completed' %}badge-light-success{% elif orders.order.status == 'Canceled' %}badge-light-danger{% elif orders.order.status == 'Return' %}badge-light-secondary{% endif %}">
+                                        {{ orders.order.status }}
+                                    </div>
+                                    
                                     <ul class="list-unstyled my-1">
                                         <li>
                                             <span class="align-middle">product is {{orders.order.status}}</span>
@@ -154,63 +161,52 @@
                     </div>
                     <!-- User Card & Plan Ends -->
 
-                    <!-- User Timeline & Permissions Starts -->
+
                     <div class="row">
-                        <!-- information starts -->
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header">
-                                    <h4 class="card-title mb-2">User Timeline</h4>
+                                    <h4 class="card-title mb-2">Product Details</h4>
                                 </div>
                                 <div class="card-body">
-                                    <ul class="timeline">
-                                        <li class="timeline-item">
-                                            <span class="timeline-point timeline-point-indicator"></span>
-                                            <div class="timeline-event">
-                                                <div class="d-flex justify-content-between flex-sm-row flex-column mb-sm-0 mb-1">
-                                                    <h6>12 Invoices have been paid</h6>
-                                                    <span class="timeline-event-time">12 min ago</span>
-                                                </div>
-                                                <p>Invoices have been paid to the company.</p>
-                                                <div class="media align-items-center">
-                                                    <img class="mr-1" src="../../../app-assets/images/icons/file-icons/pdf.png" alt="invoice" height="23" />
-                                                    <div class="media-body">invoice.pdf</div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        <li class="timeline-item">
-                                            <span class="timeline-point timeline-point-warning timeline-point-indicator"></span>
-                                            <div class="timeline-event">
-                                                <div class="d-flex justify-content-between flex-sm-row flex-column mb-sm-0 mb-1">
-                                                    <h6>Client Meeting</h6>
-                                                    <span class="timeline-event-time">45 min ago</span>
-                                                </div>
-                                                <p>Project meeting with john @10:15am.</p>
-                                                <div class="media align-items-center">
-                                                    <div class="avatar">
-                                                        <img src="../../../app-assets/images/avatars/12-small.png" alt="avatar" height="38" width="38" />
-                                                    </div>
-                                                    <div class="media-body ml-50">
-                                                        <h6 class="mb-0">John Doe (Client)</h6>
-                                                        <span>CEO of Infibeam</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        <li class="timeline-item">
-                                            <span class="timeline-point timeline-point-info timeline-point-indicator"></span>
-                                            <div class="timeline-event">
-                                                <div class="d-flex justify-content-between flex-sm-row flex-column mb-sm-0 mb-1">
-                                                    <h6>Create a new project for client</h6>
-                                                    <span class="timeline-event-time">2 days ago</span>
-                                                </div>
-                                                <p class="mb-0">Add files to new design folder</p>
-                                            </div>
-                                        </li>
-                                    </ul>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Price</th>
+                                                <th>Quantity</th>
+                                                <th>Image</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <td>{{orders.product.title}}</td>
+                                                <td>{{orders.product.sale_price}}</td>
+                                                <td>{{orders.quantity}}</td>
+                                                <td><img style="height:50px;" src="{{orders.product.image.url}}"/></td>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="col-md-6">
+                            {% if orders.order.status == 'Canceled' or orders.order.status == 'Return' %}
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title mb-2">{{orders.order.status}} Reason</h4>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Your button and input field go here -->
+                                    <div class="form-group">
+                                        <label for="userActionInput">User Response:</label>
+                                        <input type="text" class="form-control" id="userActionInput" value="{{orders.order.user_note}}" readonly>
+                                    </div>
+                                    <button type="button" class="btn btn-primary">Approve Refund</button>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
                         <!-- information Ends -->
 
 

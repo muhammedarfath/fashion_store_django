@@ -1,6 +1,7 @@
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views import View
+from user.models import UserProfile
 from shop.models import Product
 from home.models import ContactMessage, SliderImage
 from django.contrib import messages
@@ -9,6 +10,11 @@ from django.db.models import Q
 
 # Home view to render the main page
 def home(request):
+    userprofile = None
+
+    if request.user.is_authenticated:
+        userprofile = UserProfile.objects.filter(user=request.user).first()
+
     try:
         slider_instance = list(SliderImage.objects.filter(status=True))
         products_new_arrivals = Product.objects.filter(status = True).order_by("-create_at")[:2]
@@ -21,7 +27,9 @@ def home(request):
         'slider_instance':slider_instance,
         'products_new_arrivals':products_new_arrivals,
         'products_best_sellers':products_best_sellers,
-        'product':product
+        'product':product,
+        'userprofile':userprofile
+        
         }
     return render(request,'index.html',context)
 

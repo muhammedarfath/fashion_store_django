@@ -164,8 +164,6 @@ class ProductAdd(View):
     
     
     
-    
-    
 class EditProduct(View):
     def get(self,request, id):
         if request.user.is_authenticated and request.user.is_superuser:
@@ -201,10 +199,12 @@ class EditProduct(View):
             sizes = request.POST.getlist('size')
             image_types = request.FILES.getlist('image_types')
             status = request.POST.get('status')
-            image_type_objects = [Images.objects.create(image=img_type) for img_type in image_types]
+            if image_types:
+               image_type_objects = [Images.objects.create(image=img_type) for img_type in image_types]
+               product.image_types.set(image_type_objects)
             
             category_instance = Subcategory.objects.get(id=category)
-            color_instance = Color.objects.get(name=color)
+            color_instance = Color.objects.get(id=color)
             size_instances = Size.objects.filter(name__in=sizes)
             
             
@@ -212,30 +212,27 @@ class EditProduct(View):
             product.category=category_instance
             product.title=title
             product.description=description
-            product.image=image
+            if image != None:
+               product.image=image
             product.amount=amount
             product.sale_price=sale_price
             product.detail=detail
             product.quantity=quantity
             product.color=color_instance
-            product.size=size_instances
             product.status=status
             
             
             # Add size_instances to the product
             product.size.set(size_instances)
 
-            # Add image types to the product
-            product.image_types.set(image_type_objects)
+
             product.save()
             messages.success(request, 'Edit Successfully')
             return redirect('/adminpanel/productlist/')              
             
     
     
-    
-    
-    
+      
         
 class AddVariant(View):   
     form_class = AddVariant 
@@ -372,9 +369,48 @@ class OrderDetails(View):
     def post(self,request,id):
         url = request.META.get('HTTP_REFERER')
         if request.method == 'POST':
-            selected_status = request.POST['orderStatus']
+            selected_status = request.POST.get('orderStatus', None)
             selected_order_id = request.POST['orderId']
-            orders = OrderProduct.objects.get(order=selected_order_id)
-            orders.order.status = selected_status
-            orders.order.save()
-            return redirect(url)
+            if selected_status is not None:
+                orders = OrderProduct.objects.get(order=selected_order_id)
+                orders.order.status = selected_status
+                orders.order.save()
+                return redirect(url)
+            else:
+                return redirect(url)
+
+
+
+# def refund(request, id):
+#     url = request.META.get('HTTP_REFERER')
+#     order_product = OrderProduct.objects.get(id=id)
+#     user_wallet = UserProfile.objects.get(user=order_product.order.user)
+#     if order_product.status == 'Canceled':
+#         order_product.order.status = 6
+#     else:
+#         order_product.order.status = 7 
+        
+#     if order_product.order.coupon:
+#         total = order_product.order.order_total - order_product.order.coupon.discount_price
+#         user_wallet.wallet += Decimal(str(total))
+#     else:
+#         user_wallet.wallet += Decimal(str(order_product.order.order_total))
+    
+#     wallet_details = Payementwallet(user=order_product.order.user)
+#     wallet_details.paymenttype = "Credit"
+#     wallet_details.wallet = Decimal(str(order_product.order.order_total))
+#     mail_subject = "Your refund has been successfully approved."
+#     message = render_to_string(
+#             "refund_recieved_email.html", {"user": order_product.order.user, "wallet": order_product.order.order_total}
+#         )
+#     to_email = order_product.order.user.email
+#     send_mail = EmailMessage(mail_subject, message, to=[to_email])
+#     send_mail.send()
+    
+#     wallet_details.save()
+#     user_wallet.save()
+#     order_product.order.save()
+#     return HttpResponseRedirect(url)
+  
+    
+

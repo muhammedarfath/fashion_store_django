@@ -50,51 +50,48 @@
 											<div class="panel-body">
 												
 												<div class="billing-details shop-cart-table">
-													<input name="name" value="{{user.username}}" type="text" placeholder="Your name here...">
-													<input name='email' value="{{user.email}}" type="text" placeholder="Email address here..." readonly>
-													<input name="phone" value="{{ account.phone }}" type="text" placeholder="Phone here...">
+													<input name="name" value="{{ user.username }}" type="text" placeholder="Your name here...">
+													<input name="email" value="{{ user.email }}" type="text" placeholder="Email address here..." readonly>
+													<input name="phone" value="{{ userprofile.phone }}" type="text" placeholder="Phone here...">
+													
 													<select name="country" class="custom-select mb-15">
-														{% if account.country %}
-														<option value="{{ account.country }}">{{ account.country }}</option>
+														{% if userprofile.country %}
+															<option value="{{ userprofile.country }}">{{ userprofile.country }}</option>
 														{% else %}
-														<option value="">Contry</option>
+															<option selected disabled>Country</option>
 														{% endif %}
-														<option value="Bangladesh">Bangladesh</option>
-														<option value="United States">United States</option>
-														<option value="United Kingdom">United Kingdom</option>
-														<option value="Australia">Australia</option>
-														<option value="Canada">Canada</option>
+														{% for country in countries %}
+															<option>{{ country.name }}</option>
+														{% endfor %}
 													</select>
-													
+												
 													<select name="state" class="custom-select mb-15">
-														{% if account.state %}
-														<option value="{{ account.state }}">{{ account.state }}</option>
+														{% if userprofile.state %}
+															<option value="{{ userprofile.state }}">{{ userprofile.state }}</option>
 														{% else %}
-														<option value="">State</option>
+															<option selected disabled>State</option>
 														{% endif %}
-														<option value="Dhaka">Dhaka</option>
-														<option value="New York">New York</option>
-														<option value="London">London</option>
-														<option value="Melbourne">Melbourne</option>
-														<option value="Ottawa">Ottawa</option>
+														{% for state in states %}
+															<option>{{ state.name }}</option>
+														{% endfor %}
 													</select>
-													
+												
 													<select name="city" class="custom-select mb-15">
-														{% if account.city %}
-														<option value="{{ account.city }}">{{ account.city }}</option>
+														{% if userprofile.city %}
+															<option value="{{ userprofile.city }}">{{ userprofile.city }}</option>
 														{% else %}
-														<option value="">Town / City</option>
+															<option selected disabled>Town</option>
 														{% endif %}
-														<option value="Dhaka">Dhaka</option>
-														<option value="New York">New York</option>
-														<option value="London">London</option>
-														<option value="Melbourne">Melbourne</option>
-														<option value="Ottawa">Ottawa</option>
+														{% for town in city %}
+															<option>{{ town.name }}</option>
+														{% endfor %}
 													</select>
-													<textarea name="address" placeholder="Your address here..." class="custom-textarea">{{account.address}}</textarea>
-                                                    <button type="submit" data-text="place order" class="button-one submit-button mt-15">Edit Details</button>			
-
+												
+													<textarea name="address" placeholder="Your address here..." class="custom-textarea">{{ userprofile.address }}</textarea>
+												
+													<button type="submit" data-text="place order" class="button-one submit-button mt-15">Edit Details</button>
 												</div>
+												
 											</div>
                                         </form>
 										</div>
@@ -126,16 +123,19 @@
 													<div class="card w-70">
 														<div class="card-body">
 															<h5 class="card-title">{{ order.product.title }} x {{ order.quantity }}</h5>
-															<p>Order Status: {{ order.order.status }}</p>
+															<p>Order Status: <strong >{{ order.order.status }}</strong></p>
 															<a href="single-product.html"><img style="height:50px;width:50px;" src="{{ order.product.image.url }}" alt="image" /></a>
-															<span class="badge badge-sm {% if order.order.status == 'New' %}badge-success{% elif order.order.status == 'Accepted' %}badge-info{% elif order.order.status == 'Canceled' %}badge-danger{% else %}badge-secondary{% endif %} d-none d-sm-inline-flex">
-																{{ order.order.status }}
-															</span>
-															<a href="/" id="pay-button2" class="button-one submit-button mt-15" data-text="Order status" type="submit">Product Details</a>
+														
 															{% comment %} <a href="/" id="pay-button2" class="button-one submit-button mt-15" data-text="Order status" type="submit">Invoice</a>
 														    <a href="/" id="pay-button2" class="button-one submit-button mt-15" data-text="Order status">Return</a> {% endcomment %}
-															{% if order.order.status != "Canceled"%}  
+															{% if order.order.status != "Canceled"%} 
+															<a href="/" id="pay-button2" class="button-one submit-button mt-15" data-text="Order status" type="submit">Product Details</a> 
 															<a href="#" id="pay-button2" class="button-one submit-button mt-15" data-text="Order status" data-toggle="modal" data-target="#cancelModal">Cancel</a>
+															{% elif order.payment.payment_method == 'razorpay' %}
+															<a href="{% url 'shop:singleproduct' id=order.product.id %}" id="pay-button2" class="button-one submit-button mt-15" data-text="Shop Now" type="submit">This item has been canceled</a>
+															<p>your refund will be processed shortly.check your mail<p/>
+															{% else %}
+															<a href="/" id="pay-button2" class="button-one submit-button mt-15" data-text="Order status" type="submit">this item canceled</a>
 															{% endif %}
 														</div>
 													</div>
@@ -151,8 +151,8 @@
 																<div class="modal-body">
 																	<p>Are you sure you want to cancel your order? This action cannot be undone.</p>
 																	
-																	<form action=""  id="cancelId-{{order.order.id}}" method="post">
-																			{% csrf_token %}
+																	<form action="" id="cancelId-{{order.order.id}}" method="post">
+																		{% csrf_token %}
 																		<div class="form-group">
 																			<label for="cancellationReason">Cancellation Reason:</label>
 																			<textarea class="form-control" name="cancel_reason" id="cancellationReason" rows="3" placeholder="Enter your reason" required></textarea>
@@ -160,8 +160,14 @@
 																		<div class="modal-footer">
 																			<button type="" class="button-one submit-button mt-15" data-text="Close" data-dismiss="modal">Close</button>
 																			
-																			<a  onclick="cancelOrder()" id="pay-button2" class="button-one submit-button mt-15" data-text="Submit">Submit</a>
-		
+																			<a href="#" 
+																			id="pay-button2" 
+																			class="button-one submit-button mt-15" 
+																			data-text="Order status" 
+																			data-toggle="modal" 
+																			data-target="#cancelModal"
+																			onclick="cancelOrder('{{ order.order.id }}')">Cancel</a>
+																				 
 																		</div>
 																	</form>	
 																</div>
@@ -251,22 +257,24 @@
 {%endblock%}
 {%block footer%}
 
- <script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-	function cancelOrder() {
+<script>
+    function cancelOrder(orderId) {
         // Retrieve the reason entered by the user
         var reason = document.getElementById('cancellationReason').value;
-		var productId = document.getElementById('cancelId').value;
-	
         
         // AJAX request to send the cancellation reason to the server
         $.ajax({
             type: 'POST',
-			url: '/user/cancel_order/' + productId + '/',
+            url: '/user/cancel_order/' + orderId + '/',
             data: {
                 'cancel_reason': reason,
-                'csrfmiddlewaretoken': '{{ csrf_token }}',  // Include the CSRF token
+                // No need for CSRF token if Django's CSRF protection is already in place
             },
+			beforeSend: function(xhr, settings) {
+				xhr.setRequestHeader("X-CSRFToken", $('[name="csrfmiddlewaretoken"]').val());
+			},
             success: function(data) {
                 // Handle the success response, if needed
                 console.log('Order canceled successfully');
@@ -276,7 +284,7 @@
                 console.error('Error canceling order', error);
             }
         });
-    
+
         // Close the modal after processing the cancellation
         $('#cancelModal').modal('hide');
     }

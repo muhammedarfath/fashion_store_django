@@ -148,10 +148,16 @@ class Account(View):
         coupon = Coupon.objects.filter(active=True) 
         form = PasswordChangeForm(user)
         orderproduct = OrderProduct.objects.filter(user=user)
-        user_profile = UserProfile.objects.filter(user=user).first()
+        userprofile=UserProfile.objects.filter(user=user).first()
+        countries = Country.objects.all()
+        states = State.objects.all()
+        city = Town.objects.all()
         context={
             'user':user,
-            'account':user_profile,
+            'userprofile':userprofile,
+            'countries':countries,
+            'states':states,
+            'city':city,
             'form':form,
             'orderproduct':orderproduct,
             'coupon':coupon

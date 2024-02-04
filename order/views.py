@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render ,get_object_or_404
 from django.views import View
-from user.models import Coupon
+from user.models import Coupon, UserProfile
 from shop.models import Product, Size
 from order.models import Cart, Country, Order, OrderProduct, Payment, ShopCart, State, Town, Wishlist
 from django.contrib import messages
@@ -278,19 +278,24 @@ class CheckOut(View):
         current_user = request.user
         if current_user.is_authenticated:
             cart_item = ShopCart.objects.filter(user=current_user)
+            userprofile = UserProfile.objects.filter(user=current_user)
             if  cart_item:
-                grand_total = (request.session.get('grand_total', 0) - request.session.get('discount', 0)) 
-                countries = Country.objects.all()
-                states = State.objects.all()
-                city = Town.objects.all()
-                context = {
-                    'countries':countries,
-                    'states':states,
-                    'city':city,
-                    'cart_item':cart_item,
-                    'grand_total':grand_total
-                }
-                return render(request,'checkout.html',context)  
+                if userprofile:
+                    grand_total = (request.session.get('grand_total', 0) - request.session.get('discount', 0)) 
+                    countries = Country.objects.all()
+                    states = State.objects.all()
+                    city = Town.objects.all()
+                    context = {
+                        'countries':countries,
+                        'states':states,
+                        'city':city,
+                        'cart_item':cart_item,
+                        'grand_total':grand_total
+                    }
+                    return render(request,'checkout.html',context)  
+                else:
+                    messages.error(request,'please create your profile')
+                    return redirect('/user/account/')                        
             else:
                 messages.error(request,'please check shopcart')
                 return redirect('/order/shopcart/')                  
@@ -427,8 +432,6 @@ class PaymentStatus(View):
         razorpay_get = request.GET.get('razorpay')
         razorpay_post = request.POST.get('razorpay')
 
-        print("GET parameter:", razorpay_get)
-        print("POST parameter:", razorpay_post)
 
         # Use either razorpay_get or razorpay_post based on your frontend implementation
         razorpay = razorpay_get or razorpay_post
