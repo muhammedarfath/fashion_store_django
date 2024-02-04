@@ -18,6 +18,7 @@ urlpatterns = [
     path('add_variant/',views.AddVariant.as_view(),name='add_variant'),
     path('orders/',views.Orders.as_view(),name='orders'),
     path('orderdetails/<int:id>/',views.OrderDetails.as_view(),name='orderdetails'),
+    path('refund/<int:id>/',views.Refund.as_view(),name='refund'),
     
 
 

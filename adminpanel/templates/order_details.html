@@ -88,6 +88,9 @@
                                                     {% else %}
                                                     <p class="card-text mb-0 badge badge-light-primary">Active</p>
                                                     {% endif %}
+                                                    {% if orders.order.refund%}
+                                                    <div class="badge badge-light-success">Refund Approved</div>
+                                                    {% endif %}
                                                 </div>
                                                 <div class="d-flex flex-wrap my-50">
                                                     <div class="user-info-title">
@@ -151,8 +154,9 @@
                                         </div>
                             
                                         <input type="hidden" name="orderId" value="{{ orders.order.id }}">
-                            
+                                        {% if orders.order.refund != True %}
                                         <button type="submit" class="btn btn-primary" style="width: 100%;">Submit</button>
+                                        {% endif %}
                                     </form>
                                 </div>
                             </div>
@@ -201,7 +205,11 @@
                                         <label for="userActionInput">User Response:</label>
                                         <input type="text" class="form-control" id="userActionInput" value="{{orders.order.user_note}}" readonly>
                                     </div>
-                                    <button type="button" class="btn btn-primary">Approve Refund</button>
+                                    {% if orders.order.refund != True %}
+                                    <a href="{% url 'adminpanel:refund' id=orders.id %}" type="button" class="btn btn-primary">Approve Refund</a>
+                                    {% else %}
+                                    <p>Refund Approved Successfully</p>
+                                    {% endif %}
                                 </div>
                             </div>
                             {% endif %}

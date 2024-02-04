@@ -98,6 +98,7 @@ class Order(models.Model):
     order_total = models.FloatField(blank=True, null=True)
     tax = models.FloatField(blank=True, null=True)
     user_note = models.CharField(blank=True, max_length=100)
+    refund = models.BooleanField(default=False)
     coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=10,choices=ORDERSTATUS, default="New",blank=True,null=True)
     create_at = models.DateTimeField(auto_now_add=True)

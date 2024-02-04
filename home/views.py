@@ -1,7 +1,7 @@
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views import View
-from user.models import UserProfile
+from user.models import Payementwallet, UserProfile
 from shop.models import Product
 from home.models import ContactMessage, SliderImage
 from django.contrib import messages
@@ -13,7 +13,8 @@ def home(request):
     userprofile = None
 
     if request.user.is_authenticated:
-        userprofile = UserProfile.objects.filter(user=request.user).first()
+        userprofile = Payementwallet.objects.filter(user=request.user).first()
+
 
     try:
         slider_instance = list(SliderImage.objects.filter(status=True))

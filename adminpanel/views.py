@@ -1,16 +1,18 @@
+from django.core.mail import EmailMessage
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from order.models import Order, OrderProduct
-from user.models import Coupon
+from user.models import Coupon, Payementwallet, UserProfile
 from shop.models import Color, Images, Product, Size, Subcategory, Variants
 from .forms import AddVariant 
 from django.contrib import messages
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate,login,logout
+from django.template.loader import render_to_string
 
 
 
@@ -380,37 +382,28 @@ class OrderDetails(View):
                 return redirect(url)
 
 
-
-# def refund(request, id):
-#     url = request.META.get('HTTP_REFERER')
-#     order_product = OrderProduct.objects.get(id=id)
-#     user_wallet = UserProfile.objects.get(user=order_product.order.user)
-#     if order_product.status == 'Canceled':
-#         order_product.order.status = 6
-#     else:
-#         order_product.order.status = 7 
+class Refund(View):
+    def get(self,request, id):
+        url = request.META.get('HTTP_REFERER')
+        order_product = OrderProduct.objects.get(id=id)
+        user_wallet = UserProfile.objects.get(user=order_product.order.user)
+        wallet_details = Payementwallet(user=order_product.order.user)
+        wallet_details.paymenttype = "Credit"
+        wallet_details.wallet = order_product.order.order_total
+        order_product.order.refund = True
+        mail_subject = "Your refund has been successfully approved."
+        message = render_to_string(
+                "refund_recieved_email.html", {"user": order_product.order.user, "wallet": order_product.order.order_total}
+            )
+        to_email = order_product.order.user.email
+        send_mail = EmailMessage(mail_subject, message, to=[to_email])
+        send_mail.send()
         
-#     if order_product.order.coupon:
-#         total = order_product.order.order_total - order_product.order.coupon.discount_price
-#         user_wallet.wallet += Decimal(str(total))
-#     else:
-#         user_wallet.wallet += Decimal(str(order_product.order.order_total))
+        wallet_details.save()
+        user_wallet.save()
+        order_product.order.save()
+        messages.success(request,'The refund has been successfully approved.')
+        return redirect(url)
     
-#     wallet_details = Payementwallet(user=order_product.order.user)
-#     wallet_details.paymenttype = "Credit"
-#     wallet_details.wallet = Decimal(str(order_product.order.order_total))
-#     mail_subject = "Your refund has been successfully approved."
-#     message = render_to_string(
-#             "refund_recieved_email.html", {"user": order_product.order.user, "wallet": order_product.order.order_total}
-#         )
-#     to_email = order_product.order.user.email
-#     send_mail = EmailMessage(mail_subject, message, to=[to_email])
-#     send_mail.send()
-    
-#     wallet_details.save()
-#     user_wallet.save()
-#     order_product.order.save()
-#     return HttpResponseRedirect(url)
-  
-    
+        
 
