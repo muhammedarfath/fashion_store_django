@@ -95,13 +95,14 @@
                         <div class="table">
                             <div class="table-cell">
                                 {% for data in header_data %}
-                                <div class="half-width">
-                                    <ul>
-                                        <li class="menu-title">{{data.category.name}}</li>
-                                        <li><a href="/shop/products/?categories={{ data.id }}">{{data.name}}</a></li>
-                                        
-                                    </ul>
-                                </div>
+                                    <div class="half-width">
+                                        <ul>
+                                            <li class="menu-title">{{ data.category.name }}</li>
+                                            {% for subcategory in data.subcategories %}
+                                                <li><a href="/shop/products/?categories={{ subcategory.id }}">{{ subcategory.name }}</a></li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
                                 {% endfor %}
                                 <div class="full-width">
                                     <div class="mega-menu-img">
@@ -114,6 +115,7 @@
                                 </div>
                                 <div class="pb-80"></div>
                             </div>
+                            
                         </div>
                     </div>
                 </li>

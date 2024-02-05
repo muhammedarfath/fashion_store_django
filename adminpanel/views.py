@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from order.models import Order, OrderProduct
+from order.models import Order, OrderProduct, Payment
 from user.models import Coupon, Payementwallet, UserProfile
 from shop.models import Color, Images, Product, Size, Subcategory, Variants
 from .forms import AddVariant 
@@ -13,6 +13,7 @@ from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate,login,logout
 from django.template.loader import render_to_string
+from django.db.models import Count, Sum
 
 
 
@@ -48,8 +49,70 @@ class AdminLogin(View):
 class DashBoard(View):
     def get(self, request):
         if request.user.is_authenticated and request.user.is_superuser:
-                users = User.objects.filter(is_superuser=True)
-                return render(request, 'dashboard.html')
+            product_counts = Product.objects.count()
+            user_counts = User.objects.count()
+            sales_count = Order.objects.filter(status="Completed").count()            
+            users = User.objects.filter(is_superuser=True).first()
+            STATUS_MAPPING = {
+                "New": "New",
+                "Accepted": "Accepted",
+                "Preparing": "Preparing",
+                "OnShipping": "OnShipping",
+                "Completed": "Completed",
+                "Canceled": "Canceled",
+                "Return": "Return",
+            }
+
+            specific_statuses = ["Completed", "Return", "Canceled"]
+            status_values = [STATUS_MAPPING[status] for status in specific_statuses]
+
+            payment_counts = (
+                Payment.objects.values("payment_method")
+                .annotate(count=Count("payment_method"))
+                .order_by("-count")
+            )
+    
+            # Extract labels and data for chart.js
+            labels = [entry["payment_method"] for entry in payment_counts]
+            data = [entry["count"] for entry in payment_counts]
+            
+            status_counts = (
+                Order.objects.filter(status__in=status_values)
+                .values("status")
+                .annotate(count=Count("status"))
+                .order_by("-count")
+            )
+            # Extract labels and data for product status chart.js
+            status_labels = [entry["status"] for entry in status_counts]
+            status_data = [entry["count"] for entry in status_counts]
+
+            # Query to get the number of orders per day in a month
+            orders_per_day = (
+                Order.objects.filter(create_at__month=12, create_at__year=2023)
+                .values("create_at__day")
+                .annotate(total_amount=Sum("order_total"))
+                .order_by("create_at__day")
+            )
+
+        
+            line_labels = [entry["create_at__day"] for entry in orders_per_day]
+            line_data = [
+                entry["total_amount"] for entry in orders_per_day
+            ]  
+            context = {
+                "labels": labels,
+                "data": data,
+                "status_labels": status_labels,
+                "status_data": status_data,
+                "line_labels": line_labels,
+                "line_data": line_data,
+                "users": users,
+                "product_counts":product_counts,
+                "user_counts":user_counts,
+                "sales_count":sales_count
+                
+            }
+            return render(request, 'dashboard.html',context)
         else:
             return redirect('/adminpanel/admin_login/') 
  

@@ -1,106 +1,165 @@
-
-{% extends "base.html" %}
-{% load static %}
-{% block header%}{%include 'header.html'%}{%endblock%}
+{% extends "base.html" %} 
+{% load static %} 
+{% block header%}
+{% include 'header.html'%}
+{%endblock%} 
 {% block body %}
-<div class="heading-banner-area overlay-bg">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="heading-banner">
-                    <div class="heading-banner-title">
-                        <h2>Shopping Check out</h2>
-                    </div>
-                    <div class="breadcumbs pb-15">
-                        <ul>
-                            <li><a href="index.html">Home</a></li>
-                            <li>Shopping Check out</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+
+<!-- order-complete start -->
+<div
+class="bannu"
+style="
+  background-image: url('https://i.pinimg.com/564x/c8/8d/08/c88d08a83ec89eaf913205c61891f881.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+"
+>  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div
+          class="heading-banner"
+        >
+          <div class="heading-banner-title">
+            <h2>Shopping Check out</h2>
+          </div>
+          <div class="breadcumbs pb-15">
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li>Shopping Check out</li>
+            </ul>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 <div class="wrapper bg-dark-white">
-    <!-- order-complete start -->
-    <div class="tab-pane" id="order-complete">
-        <form action="#">
-            <div class="thank-recieve bg-white mb-30">
-                <p>Thank you. Your order has been received.</p>
-            </div>
-            <div class="order-info bg-white text-center clearfix mb-30">
-                <div class="single-order-info">
-                    <h4 class="title-1 text-uppercase text-light-black mb-0">order no</h4>
-                    <p class="text-uppercase text-light-black mb-0"><strong>m 2653257</strong></p>
-                </div>
-                <div class="single-order-info">
-                    <h4 class="title-1 text-uppercase text-light-black mb-0">Date</h4>
-                    <p class="text-uppercase text-light-black mb-0"><strong>june 15, 2021</strong></p>
-                </div>
-                <div class="single-order-info">
-                    <h4 class="title-1 text-uppercase text-light-black mb-0">Total</h4>
-                    <p class="text-uppercase text-light-black mb-0"><strong>$ 170.00</strong></p>
-                </div>
-                <div class="single-order-info">
-                    <h4 class="title-1 text-uppercase text-light-black mb-0">payment method</h4>
-                    <p class="text-uppercase text-light-black mb-0"><a href="#"><strong>check payment</strong></a></p>
-                </div>
-            </div>
-            <div class="shop-cart-table check-out-wrap">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="our-order payment-details pr-20">
-                            <h4 class="title-1 title-border text-uppercase mb-30">our order</h4>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th><strong>Product</strong></th>
-                                        <th class="text-end"><strong>Total</strong></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Dummy Product Name  x 2</td>
-                                        <td class="text-end">$86.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Dummy Product Name  x 1</td>
-                                        <td class="text-end">$69.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Cart Subtotal</td>
-                                        <td class="text-end">$155.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Shipping and Handing</td>
-                                        <td class="text-end">$15.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Vat</td>
-                                        <td class="text-end">$00.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Order Total</td>
-                                        <td class="text-end">$170.00</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                <div class="col-md-6 mt-xs-30">
-                    <div style="margin-top:43px; position: relative; border: 1px solid #ddd; padding: 120px; border-radius: 10px; background-color: #f9f9f9;">
-                        <a href="/" id="pay-button1" class="button-one submit-button mt-15" data-text="Shop now" type="submit" style="position: absolute; bottom: 10px; right: 10px;">Back to shop</a>
-                        <a href="/user/account/" id="pay-button2" class="button-one submit-button mt-15" data-text="Order status" type="submit" style="position: absolute; bottom: 50px; right: 10px;">Order details</a>
-                    </div>
-                </div>
+  <div class="tab-pane" id="order-complete">
+    <form action="#">
+      <div class="thank-recieve bg-white mb-30">
+        <p>Thank you. Your order has been received.</p>
+      </div>
+      <div class="order-info bg-white text-center clearfix mb-30">
+        <div class="single-order-info">
+          <h4 class="title-1 text-uppercase text-light-black mb-0">order no</h4>
+          <p class="text-uppercase text-light-black mb-0">
+            <strong>{{order.order_number}}</strong>
+          </p>
+        </div>
+        <div class="single-order-info">
+          <h4 class="title-1 text-uppercase text-light-black mb-0">Date</h4>
+          <p class="text-uppercase text-light-black mb-0">
+            <strong>{{order.create_at}}</strong>
+          </p>
+        </div>
+        <div class="single-order-info">
+          <h4 class="title-1 text-uppercase text-light-black mb-0">Total</h4>
+          <p class="text-uppercase text-light-black mb-0">
+            <strong
+              ><span style="font-family: 'Arial', 'Helvetica', sans-serif"
+                >&#8377;</span
+              >{{order.order_total}}</strong
+            >
+          </p>
+        </div>
+        <div class="single-order-info">
+          <h4 class="title-1 text-uppercase text-light-black mb-0">
+            payment method
+          </h4>
+          <p class="text-uppercase text-light-black mb-0">
+            <a href="#"><strong>{{order.payment.payment_method}}</strong></a>
+          </p>
+        </div>
+      </div>
+      <div class="shop-cart-table check-out-wrap">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="our-order payment-details pr-20">
+              <h4 class="title-1 title-border text-uppercase mb-30">
+                our order
+              </h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th><strong>Product</strong></th>
+                    <th class="text-end"><strong>Total</strong></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for orderproduct in orderproduct%}
+                  <tr>
+                    <td>
+                      {{orderproduct.product}} x {{orderproduct.quantity}}
+                    </td>
+                    <td class="text-end">
+                      ₹{{orderproduct.product.sale_price}}
+                    </td>
+                  </tr>
+                  {% endfor %}
 
-                </div>
+                  <tr>
+                    <td>Tax</td>
+                    <td class="text-end">₹{{order.tax}}</td>
+                  </tr>
+                  <tr>
+                    <td>Shipping</td>
+                    <td class="text-end">Free</td>
+                  </tr>
+                  <tr>
+                    <td>Order Total</td>
+                    <td class="text-end">₹{{order.order_total}}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-        </form>										
-    </div>
+          </div>
+          <div class="col-md-6 mt-xs-30">
+            <div
+              style="
+                position: relative;
+                border: 1px solid #ddd;
+                border-radius: 10px;
+                background-color: #f9f9f9;
+                height: 300px;
+                padding: 10px;
+              "
+            >
+              {% for img in orderproduct %}
+              <img
+                src="{{ img.product.image.url }}"
+                height="150"
+                width="150"
+                style="position: absolute; top: 10px; left: 10px"
+              />
+              {% endfor %}
+              <a
+                href="/"
+                id="pay-button1"
+                class="button-one submit-button"
+                data-text="Shop now"
+                type="submit"
+                style="position: absolute; bottom: 10px; right: 10px"
+                >Back to shop</a
+              >
+              <a
+                href="/user/account/"
+                id="pay-button2"
+                class="button-one submit-button"
+                data-text="Order status"
+                type="submit"
+                style="position: absolute; bottom: 50px; right: 10px"
+                >Order details</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
 <!-- order-complete end -->
 
+{%endblock%} 
+{%block footer%}
+{%include 'footer.html'%}
 {%endblock%}
-{%block footer%}{%include 'footer.html'%}{%endblock%}

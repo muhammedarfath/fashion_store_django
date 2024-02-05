@@ -1,28 +1,95 @@
-{% extends "base.html" %}
-{% load static %}
-{% block header%}{%include 'header.html'%}{%endblock%}
+{% extends "base.html" %} 
+{% load static %} 
+{% block header %}
+{% include 'header.html' %}
+{% endblock %} 
 {% block body %}
 
-
-<div class="container height-100 d-flex justify-content-center align-items-center">
-    <div class="position-relative">
-        <div class="card p-2 text-center">
-            <form action="{% url 'user:otp' %}" method='POST'>
-                {% csrf_token %}
-            <h6>Please enter the otp <br> to verify your account</h6>
-            <div> <span>A code has been sent to</span> <small>{{user}}</small> </div>
-            <div id="otp" class="inputs d-flex flex-row justify-content-center mt-2">
-            <input class="m-2 text-center form-control rounded" type="text" id="first" name="first" maxlength="1" />
-            <input class="m-2 text-center form-control rounded" type="text" id="second" name="second" maxlength="1" />
-            <input class="m-2 text-center form-control rounded" type="text" id="third" name="third" maxlength="1" />
-            <input class="m-2 text-center form-control rounded" type="text" id="fourth" name="fourth" maxlength="1" />
-            <input class="m-2 text-center form-control rounded" type="text" id="fifth" name="fifth" maxlength="1" />
-            <input class="m-2 text-center form-control rounded" type="text" id="sixth" name="sixth" maxlength="1" />
-            </div>
-            <div class="mt-4"><button type="submit" data-text="regiter" class="button-one submit-button mt-15">regiter</button>
-            </div>
-            </form>
+<div
+  class="container height-100 d-flex justify-content-center align-items-center">
+  <div class="position-relative">
+    <div class="card p-2 text-center">
+      <form action="{% url 'user:otp' %}" method="POST" id="otpForm">
+        {% csrf_token %}
+        <h6>
+          Please enter the OTP <br />
+          to verify your account
+        </h6>
+        <div>
+          <span>A code has been sent to</span> <small>{{ user }}</small>
         </div>
+        <div
+          id="otp"
+          class="inputs d-flex flex-row justify-content-center mt-2"
+        >
+          <input
+            class="m-2 text-center form-control rounded"
+            type="text"
+            id="first"
+            name="first"
+            maxlength="1"
+            oninput="moveToNextInput(this, 'second')"
+          />
+          <input
+            class="m-2 text-center form-control rounded"
+            type="text"
+            id="second"
+            name="second"
+            maxlength="1"
+            oninput="moveToNextInput(this, 'third')"
+          />
+          <input
+            class="m-2 text-center form-control rounded"
+            type="text"
+            id="third"
+            name="third"
+            maxlength="1"
+            oninput="moveToNextInput(this, 'fourth')"
+          />
+          <input
+            class="m-2 text-center form-control rounded"
+            type="text"
+            id="fourth"
+            name="fourth"
+            maxlength="1"
+            oninput="moveToNextInput(this, 'fifth')"
+          />
+          <input
+            class="m-2 text-center form-control rounded"
+            type="text"
+            id="fifth"
+            name="fifth"
+            maxlength="1"
+            oninput="moveToNextInput(this, 'sixth')"
+          />
+          <input
+            class="m-2 text-center form-control rounded"
+            type="text"
+            id="sixth"
+            name="sixth"
+            maxlength="1"
+          />
+        </div>
+        <div class="mt-4">
+          <button
+            type="submit"
+            data-text="register"
+            class="button-one submit-button mt-15"
+          >
+            register
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
-{%endblock%}
+
+<script>
+  function moveToNextInput(currentInput, nextInputId) {
+    if (currentInput.value.length === currentInput.maxLength) {
+      document.getElementById(nextInputId).focus();
+    }
+  }
+</script>
+
+{% endblock %}

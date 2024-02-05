@@ -14,11 +14,11 @@ class ProductsShow(View):
         catid = request.GET.get('categories')
         if catid:
             products = Product.objects.filter(category__id=catid, status=True).order_by("id")
-            paginator = Paginator(products, 1)
+            paginator = Paginator(products, 4)
             page = request.GET.get("page")
         else:    
             products = Product.objects.all()
-            paginator = Paginator(products, 1)
+            paginator = Paginator(products, 4)
             page = request.GET.get("page")     
         paged_product = paginator.get_page(page)      
         context = {
@@ -26,7 +26,9 @@ class ProductsShow(View):
     
         }
         return render(request,'shop.html',context)
- 
+    
+    
+# View to display single product
 class SingleProduct(View):
     def get(self, request, id):
         try:
@@ -68,6 +70,8 @@ class SingleProduct(View):
         }
         return render(request, 'single_product.html', context)
  
+ 
+# Handle the product Review
 class Review(View):
     def post(self,request,id):
         product = Product.objects.get(id=id)

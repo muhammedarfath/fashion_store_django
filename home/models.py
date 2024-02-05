@@ -13,7 +13,6 @@ class SliderImage(models.Model):
     create_at=models.DateTimeField(auto_now_add=True)
     update_at=models.DateTimeField(auto_now=True)
     
-    
 
 # Settings model represents various settings for the website.
 class Settings(models.Model):
@@ -43,6 +42,7 @@ class Settings(models.Model):
         return self.title
     
     
+#Dynamic Banner loading    
 class Banners(models.Model):
     STATUS = (
         ('True', 'True'),
@@ -58,7 +58,7 @@ class Banners(models.Model):
     update_at=models.DateTimeField(auto_now=True)
         
         
-        
+#Contact message         
 class ContactMessage(models.Model):
     STATUS = (
         ('New', 'New'),

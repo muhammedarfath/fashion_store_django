@@ -1,0 +1,164 @@
+{% extends "base.html" %} 
+{% load static %} 
+{% block header%}
+{%include 'header.html'%}
+{%endblock%} {% block body %}
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+
+  .cls {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #fff;
+  }
+
+  .logo {
+    max-width: 100%;
+    height: auto;
+  }
+
+  address {
+    margin-top: 15px;
+  }
+
+  .invoice-head td {
+    padding: 8px;
+  }
+
+  .invoice-body {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    overflow-x: auto; /* Enable horizontal scrolling on small screens */
+  }
+
+  .table-bordered th,
+  .table-bordered td {
+    border: 1px solid #ddd;
+    white-space: nowrap; /* Prevent text wrapping */
+  }
+
+  .invoice-thank {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #dff0d8;
+  }
+
+  .buttons {
+    margin-top: 20px;
+  }
+
+  .button {
+    display: inline-block;
+    padding: 10px 20px;
+    margin-right: 10px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #428bca;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .button:hover {
+    background-color: #3071a9;
+  }
+</style>
+
+<div class="container cls">
+  <img
+    src="{% static 'img/logo/logo.png'%}"
+    class="logo"
+    alt="Webivorous Logo"
+  />
+  <address>
+    <strong>{{company.company}}.</strong><br />
+    <br />
+    {{company.address }}(India)
+  </address>
+
+  <div class="invoice-head">
+    <table class="table table-bordered">
+      <tbody>
+        <tr>
+          <td><strong>Customer #</strong></td>
+          <td>{{order_products.order_number}}</td>
+        </tr>
+        <tr>
+          <td><strong>Invoice #</strong></td>
+          <td>2340</td>
+        </tr>
+        <tr>
+          <td><strong>Date</strong></td>
+          <td>{{order_products.create_at}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Invoice</h2>
+
+  <div class="invoice-body">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in order %}
+        <tr>
+          <td>{{i.product.title}}</td>
+          <td>{{i.product.sale_price}}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+          <td>Tax</td>
+          <td>{{order_products.tax}}</td>
+        </tr>
+        <tr>
+          <td>Total</td>
+          <td>{{order_products.order_total}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="invoice-thank">
+    <h5>Thank You!</h5>
+  </div>
+
+  <div class="buttons">
+    <a href="#" class="button" id="downloadButton">Download</a>
+    <a href="#" class="button" id="printButton">Print</a>
+  </div>
+
+  <div>
+    <strong>Phone:</strong> +91-124-111111 | <strong>Email:</strong>
+    <a href="mailto:web@webivorous.com">web@webivorous.com</a> |
+    <strong>Website:</strong>
+    <a href="http://webivorous.com">http://webivorous.com</a>
+  </div>
+
+  <script>
+    document
+      .getElementById("printButton")
+      .addEventListener("click", function () {
+        window.print();
+      });
+  </script>
+</div>
+
+{%endblock%}
+{%block footer%}
+{%include 'footer.html'%}
+{%endblock%}

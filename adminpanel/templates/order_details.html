@@ -195,6 +195,7 @@
                         
                         <div class="col-md-6">
                             {% if orders.order.status == 'Canceled' or orders.order.status == 'Return' %}
+                            {% if orders.payment.payment_method == 'razorpay'%}
                             <div class="card">
                                 <div class="card-header">
                                     <h4 class="card-title mb-2">{{orders.order.status}} Reason</h4>
@@ -212,6 +213,7 @@
                                     {% endif %}
                                 </div>
                             </div>
+                            {% endif %}
                             {% endif %}
                         </div>
                         

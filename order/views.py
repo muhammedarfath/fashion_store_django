@@ -264,7 +264,8 @@ class AddToWishList(View):
                     messages.warning(request, 'Invalid size or size not provided')
                     return redirect('/')
             else:
-                messages.warning(request,'please select the size')        
+                messages.warning(request,'please select the size') 
+                return redirect(f'/shop/singleproduct/{id}/')       
         else:
             messages.warning(request, 'Please login')
             return redirect('/')
@@ -278,7 +279,7 @@ class CheckOut(View):
         current_user = request.user
         if current_user.is_authenticated:
             cart_item = ShopCart.objects.filter(user=current_user)
-            userprofile = UserProfile.objects.filter(user=current_user)
+            userprofile = UserProfile.objects.filter(user=current_user).first()
             if  cart_item:
                 if userprofile:
                     grand_total = (request.session.get('grand_total', 0) - request.session.get('discount', 0)) 
@@ -290,7 +291,8 @@ class CheckOut(View):
                         'states':states,
                         'city':city,
                         'cart_item':cart_item,
-                        'grand_total':grand_total
+                        'grand_total':grand_total,
+                        'userprofile': userprofile,
                     }
                     return render(request,'checkout.html',context)  
                 else:
@@ -424,16 +426,18 @@ class PaymentStatus(View):
             order = Order.objects.get(order_number=order_number)
             order.payment.payment_id = payment_id
             order.payment.save()
-            return render(request,'order_complete.html',{'status':True})
+            context = {
+                'status':True,
+                'order':order,
+            }
+            return render(request,'order_complete.html',context)
         except:
             return render(request,'order_complete.html',{'status':False}) 
         
     def post(self, request):
         razorpay_get = request.GET.get('razorpay')
         razorpay_post = request.POST.get('razorpay')
-
-
-        # Use either razorpay_get or razorpay_post based on your frontend implementation
+        
         razorpay = razorpay_get or razorpay_post
         if razorpay:
             response = request.POST
@@ -444,9 +448,13 @@ class PaymentStatus(View):
                 order = Order.objects.get(order_number=response.get('razorpay_order_id'))
                 order.payment.payment_id = razorpay_payment_id
                 order.payment.save()
+                orderproduct = OrderProduct.objects.filter(order=order)
+                context = {
+                    'order':order,
+                    'orderproduct':orderproduct
+                }
                 
-                # Redirect to order_complete.html on successful payment
-                return redirect('order:order_complete', order_number=order.order_number)
+                return render(request,'order_complete.html',context)
             except Order.DoesNotExist:
                 return render(request, 'order_complete.html', {'status': False, 'message': 'Order not found'})
             except Exception as e:

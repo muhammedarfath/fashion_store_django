@@ -13,7 +13,14 @@ def home(request):
     userprofile = None
 
     if request.user.is_authenticated:
-        userprofile = Payementwallet.objects.filter(user=request.user).first()
+        userprofile = UserProfile.objects.filter(user=request.user)
+        paymentwallet = Payementwallet.objects.filter(user=request.user)
+
+        userprofile.wallet = 0
+        
+        for pay in paymentwallet:
+            userprofile.wallet += pay.wallet
+        
 
 
     try:
@@ -34,7 +41,7 @@ def home(request):
         }
     return render(request,'index.html',context)
 
-
+# Hndle the search product
 class Search(View):
     def get(self,request):
         search = request.GET.get('search')  
@@ -69,19 +76,17 @@ class Search(View):
         else:
             return self.get(request)    
   
-            
-        
-        
-
-
+# Blog view 
 class Blog(View):
     def get(self,request):
         return render(request,'blog.html')
  
+#About view 
 class AboutUs(View):
     def get(self,request):
         return render(request,'aboutus.html') 
     
+#Contact view    
 class Contact(View):
     def get(self, request):
         return render(request, 'contact.html')   

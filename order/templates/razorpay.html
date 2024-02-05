@@ -1,83 +1,85 @@
 <!-- Razorpay payment -->
 
-
 <style>
-    /* Center the form and button */
-    .payment-form-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh; /* Optional: Set height as per your design */
-    }
+  /* Center the form and button */
+  .payment-form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Optional: Set height as per your design */
+  }
 
-    /* Style the container box */
-    .payment-form-box {
-        border: 2px solid #ccc;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        background-color: #fff;
-        text-align: center; /* Center-align content */
-    }
+  /* Style the container box */
+  .payment-form-box {
+    border: 2px solid #ccc;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    text-align: center; /* Center-align content */
+  }
 
-    /* Customize Razorpay button style */
-    .razorpay-payment-button {
-        background-color: #4CAF50; /* Set the background color */
-        color: white; /* Set the text color */
-        border: none; /* Remove border */
-        padding: 10px 20px; /* Add padding */
-        text-align: center; /* Center text */
-        text-decoration: none; /* Remove underline */
-        display: inline-block;
-        font-size: 16px;
-        margin: 4px 2px;
-        cursor: pointer;
-        border-radius: 4px; /* Optional: Add rounded corners */
-    }
+  /* Customize Razorpay button style */
+  .razorpay-payment-button {
+    background-color: #4caf50; /* Set the background color */
+    color: white; /* Set the text color */
+    border: none; /* Remove border */
+    padding: 10px 20px; /* Add padding */
+    text-align: center; /* Center text */
+    text-decoration: none; /* Remove underline */
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px; /* Optional: Add rounded corners */
+  }
 
-    /* Additional styles if needed */
-    .razorpay-payment-button:hover {
-        background-color: #45a049; /* Change background color on hover */
-    }
+  /* Additional styles if needed */
+  .razorpay-payment-button:hover {
+    background-color: #45a049; /* Change background color on hover */
+  }
 
-    /* Style for Razorpay logo */
-    .razorpay-logo {
-        max-width: 100px; /* Adjust the maximum width as needed */
-        display: block; /* Center-align the image */
-        margin: 0 auto; /* Center-align the image */
-    }
-</style>    
-
-
+  /* Style for Razorpay logo */
+  .razorpay-logo {
+    max-width: 100px; /* Adjust the maximum width as needed */
+    display: block; /* Center-align the image */
+    margin: 0 auto; /* Center-align the image */
+  }
+</style>
 
 <div class="payment-form-container">
-    <div class="payment-form-box">
-        <form action="{% url 'order:payment_status' %}" method="POST">
-            {% csrf_token %}
-            <!-- Add Razorpay logo here -->
-            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Razorpay_logo.webp" alt="Razorpay Logo" class="razorpay-logo">
+  <div class="payment-form-box">
+    <form action="{% url 'order:payment_status' %}" method="POST">
+      {% csrf_token %}
+      <!-- Add Razorpay logo here -->
+      <img
+        src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Razorpay_logo.webp"
+        alt="Razorpay Logo"
+        class="razorpay-logo"
+      />
 
-            <!-- Razorpay button with existing code -->
-            <a href='/order/checkout/' class="razorpay-payment-button">Back to Details</a>
+      <!-- Razorpay button with existing code -->
+      <a href="/order/checkout/" class="razorpay-payment-button"
+        >Back to Details</a
+      >
 
-            <script
-                src="https://checkout.razorpay.com/v1/checkout.js"
-                data-key="rzp_test_dJ031uu0BTMT8W" 
-                data-amount="{{ order.amount }}" 
-                data-currency="INR"
-                data-order_id="{{ order.id }}"
-                data-buttontext="Continue with Razorpay"
-                data-name="WebShop"
-                data-description="online shopping cart"
-                data-image="https://example.com/your_logo.jpg"
-                data-prefill.name="{{ order_details.user }}"
-                data-prefill.email="{{ order_details.email }}"
-                data-theme.color="#F37254">
-            </script>
+      <script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        data-key="rzp_test_dJ031uu0BTMT8W"
+        data-amount="{{ order.amount }}"
+        data-currency="INR"
+        data-order_id="{{ order.id }}"
+        data-buttontext="Continue with Razorpay"
+        data-name="WebShop"
+        data-description="online shopping cart"
+        data-image="https://example.com/your_logo.jpg"
+        data-prefill.name="{{ order_details.user }}"
+        data-prefill.email="{{ order_details.email }}"
+        data-theme.color="#F37254"
+      ></script>
 
-            <!-- Add a hidden input for 'razorpay' -->
-            <input type="hidden" name="razorpay" value="{{ order.id }}">
-
-        </form>
-    </div>
+      <!-- Add a hidden input for 'razorpay' -->
+      <input type="hidden" name="razorpay" value="{{ order.id }}" />
+    </form>
+  </div>
 </div>

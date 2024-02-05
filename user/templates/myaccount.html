@@ -1,294 +1,537 @@
-
-{% extends "base.html" %}
-{% load static %}
+{% extends "base.html" %} 
+{% load static %} 
 {% block header%}
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-{%include 'header.html'%}
-{%endblock%}
-{% block body %}
-		<!-- WRAPPER START -->
-		<div class="wrapper bg-dark-white">
-
-			<!-- HEADING-BANNER START -->
-			<div class="heading-banner-area overlay-bg">
-				<div class="container">
-					<div class="row">
-						<div class="col-md-12">
-							<div class="heading-banner">
-								<div class="heading-banner-title">
-									<h2>My Account</h2>
-								</div>
-								<div class="breadcumbs pb-15">
-									<ul>
-										<li><a href="index.html">Home</a></li>
-										<li>My Account</li>
-									</ul>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<!-- HEADING-BANNER END -->
-			<!-- MY-ACCOUNT-AREA START -->
-			<div class="my-account-area  pt-80 pb-80">
-				<div class="container">	
-					<div class="my-account">
-						<div class="row">
-							<div class="col-md-6">
-								<div class="panel-group" id="accordion">
-									<div class="panel mb-2">
-										<div class="my-account-menu" >
-											<a  data-bs-toggle="collapse" href="#my-info">
-											My Personal Information
-											</a>
-										</div>
-										<div id="my-info" class="panel-collapse collapse show" data-bs-parent="#accordion">
-                                        <form action="" method="post">
-                                            {% csrf_token %}
-											<div class="panel-body">
-												
-												<div class="billing-details shop-cart-table">
-													<input name="name" value="{{ user.username }}" type="text" placeholder="Your name here...">
-													<input name="email" value="{{ user.email }}" type="text" placeholder="Email address here..." readonly>
-													<input name="phone" value="{{ userprofile.phone }}" type="text" placeholder="Phone here...">
-													
-													<select name="country" class="custom-select mb-15">
-														{% if userprofile.country %}
-															<option value="{{ userprofile.country }}">{{ userprofile.country }}</option>
-														{% else %}
-															<option selected disabled>Country</option>
-														{% endif %}
-														{% for country in countries %}
-															<option>{{ country.name }}</option>
-														{% endfor %}
-													</select>
-												
-													<select name="state" class="custom-select mb-15">
-														{% if userprofile.state %}
-															<option value="{{ userprofile.state }}">{{ userprofile.state }}</option>
-														{% else %}
-															<option selected disabled>State</option>
-														{% endif %}
-														{% for state in states %}
-															<option>{{ state.name }}</option>
-														{% endfor %}
-													</select>
-												
-													<select name="city" class="custom-select mb-15">
-														{% if userprofile.city %}
-															<option value="{{ userprofile.city }}">{{ userprofile.city }}</option>
-														{% else %}
-															<option selected disabled>Town</option>
-														{% endif %}
-														{% for town in city %}
-															<option>{{ town.name }}</option>
-														{% endfor %}
-													</select>
-												
-													<textarea name="address" placeholder="Your address here..." class="custom-textarea">{{ userprofile.address }}</textarea>
-												
-													<button type="submit" data-text="place order" class="button-one submit-button mt-15">Edit Details</button>
-												</div>
-												
-											</div>
-                                        </form>
-										</div>
-									</div>
-									<div class="panel mb-2">
-										<div class="my-account-menu">
-											<a class="collapsed"  data-bs-toggle="collapse"  href="#my-billing">
-											Wallet History
-											</a>
-										</div>
-										<div id="my-billing" class="panel-collapse collapse" data-bs-parent="#accordion">
-											<div class="panel-body">
-												<div class="billing-details shop-cart-table">
-													
-												</div>
-											</div>
-										</div>
-									</div>
-									<div class="panel mb-2 mb-md-0">
-										<div class="my-account-menu">
-											<a class="collapsed"  data-bs-toggle="collapse"  href="#my-order">
-											Order history and details
-											</a>
-										</div>
-										<div id="my-order" class="panel-collapse collapse" data-bs-parent="#accordion">
-											<div class="panel-body">
-												<div class="our-order payment-details shop-cart-table">
-													{% for order in orderproduct %}
-													<div class="card w-70">
-														<div class="card-body">
-															<h5 class="card-title">{{ order.product.title }} x {{ order.quantity }}</h5>
-															<p>Order Status: <strong >{{ order.order.status }}</strong></p>
-															<a href="single-product.html"><img style="height:50px;width:50px;" src="{{ order.product.image.url }}" alt="image" /></a>
-														
-															{% comment %} <a href="/" id="pay-button2" class="button-one submit-button mt-15" data-text="Order status" type="submit">Invoice</a>
-														    <a href="/" id="pay-button2" class="button-one submit-button mt-15" data-text="Order status">Return</a> {% endcomment %}
-															{% if order.order.status != "Canceled"%} 
-															<a href="/" id="pay-button2" class="button-one submit-button mt-15" data-text="Order status" type="submit">Product Details</a> 
-															<a href="#" id="pay-button2" class="button-one submit-button mt-15" data-text="Order status" data-toggle="modal" data-target="#cancelModal">Cancel</a>
-															{% elif order.payment.payment_method == 'razorpay' %}
-															<a href="{% url 'shop:singleproduct' id=order.product.id %}" id="pay-button2" class="button-one submit-button mt-15" data-text="Shop Now" type="submit">This item has been canceled</a>
-															<p>your refund will be processed shortly.check your mail<p/>
-															{% else %}
-															<a href="/" id="pay-button2" class="button-one submit-button mt-15" data-text="Order status" type="submit">this item canceled</a>
-															{% endif %}
-														</div>
-													</div>
-													<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel" aria-hidden="true">
-														<div class="modal-dialog" role="document" style="width: 300px;">
-															<div class="modal-content">
-																<div class="modal-header">
-																	<h5 class="modal-title" id="cancelModalLabel">Cancel Order</h5>
-																	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-																		<span aria-hidden="true">&times;</span>
-																	</button>
-																</div>
-																<div class="modal-body">
-																	<p>Are you sure you want to cancel your order? This action cannot be undone.</p>
-																	
-																	<form action="" id="cancelId-{{order.order.id}}" method="post">
-																		{% csrf_token %}
-																		<div class="form-group">
-																			<label for="cancellationReason">Cancellation Reason:</label>
-																			<textarea class="form-control" name="cancel_reason" id="cancellationReason" rows="3" placeholder="Enter your reason" required></textarea>
-																		</div>
-																		<div class="modal-footer">
-																			<button type="" class="button-one submit-button mt-15" data-text="Close" data-dismiss="modal">Close</button>
-																			
-																			<a href="#" 
-																			id="pay-button2" 
-																			class="button-one submit-button mt-15" 
-																			data-text="Order status" 
-																			data-toggle="modal" 
-																			data-target="#cancelModal"
-																			onclick="cancelOrder('{{ order.order.id }}')">Cancel</a>
-																				 
-																		</div>
-																	</form>	
-																</div>
-															
-															</div>
-														</div>
-													</div>
-													{% endfor %}													
-												</div>
-											</div>
-										</div>
-									</div>					
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="panel-group" id="accordion-2">
-									<div class="panel mb-2">
-										<div class="my-account-menu" >
-											<a  data-bs-toggle="collapse" href="#my-payment-method">
-											Change Password
-											</a>
-										</div>
-										<div id="my-payment-method" class="panel-collapse collapse show" data-bs-parent="#accordion-2" style="background:#fff;">
-											<div class="panel-body" style="padding: 12px;">
-												<form action="{% url 'user:updatepassword'%}" method="post">
-													{% csrf_token %}
-													{% for field in form %}
-														<div class="form-field">
-															<label for="{{ field.id_for_label }}" style="font-weight: bold;">{{ field.label_tag }}</label>
-															{{ field }}
-															{% if field.help_text %}
-																<small style="color: grey;">{{ field.help_text }}</small>
-															{% endif %}
-															{% for error in field.errors %}
-																<p style="color: red;">{{ error }}</p>
-															{% endfor %}
-														</div>
-													{% endfor %}
-													<button type="submit" data-text="place order" class="button-one submit-button mt-15">Edit Details</button>		
-												</form>
-											</div>
-										</div>
-									</div>
-									<div class="panel mb-2 mb-md-0">
-										<div class="my-account-menu">
-											<a class="collapsed"  data-bs-toggle="collapse"  href="#coupon">
-											Coupon
-											</a>
-										</div>
-										<div id="coupon" class="panel-collapse collapse" data-bs-parent="#accordion">
-											<div class="panel-body">
-												<div class="our-order payment-details shop-cart-table">
-													{% for co in coupon %}
-													<div class="card w-70">
-														<div class="card-body">
-															<h5 class="card-title">{{ co.offer_name }}</h5>
-															<p>Coupon Id: {{ co.code }}</p>
-															<a href="single-product.html">
-																{% if co.image %}
-																<img style="height:71px;width:550px;" src="{{ co.image.url }}" alt="image" />
-																{% endif %}
-															</a>
-
-															<button type="submit" data-text="add coupon" class="button-one submit-button mt-15">Use Coupon</button>		
-
-														</div>
-													</div>
-													<br>
-													{% endfor %}	
-																	
-												</div>
-											</div>
-										</div>
-									</div>	
-								</div>								
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<!-- MY-ACCOUNT-CART-AREA END -->
-			
-		</div>
-		<!-- WRAPPER END -->
-	
-		
-{%endblock%}
-{%block footer%}
-
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{%include 'header.html'%} 
+{%endblock%} 
+{% block body %}
 
+<!-- WRAPPER START -->
+<div class="wrapper bg-dark-white">
+  <!-- HEADING-BANNER START -->
+  <div
+    class="bannu"
+    style="
+      background-image: url('https://i.pinimg.com/564x/c8/8d/08/c88d08a83ec89eaf913205c61891f881.jpg');
+      background-repeat: no-repeat;
+      background-size: cover;
+    "
+  >
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="heading-banner">
+            <div class="heading-banner-title">
+              <h2>My Account</h2>
+            </div>
+            <div class="breadcumbs pb-15">
+              <ul>
+                <li><a href="index.html">Home</a></li>
+                <li>My Account</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- HEADING-BANNER END -->
+  <!-- MY-ACCOUNT-AREA START -->
+  <div class="my-account-area pt-80 pb-80">
+    <div class="container">
+      <div class="my-account">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="panel-group" id="accordion">
+              <div class="panel mb-2">
+                <div class="my-account-menu">
+                  <a data-bs-toggle="collapse" href="#my-info">
+                    My Personal Information
+                  </a>
+                </div>
+                <div
+                  id="my-info"
+                  class="panel-collapse collapse show"
+                  data-bs-parent="#accordion"
+                >
+                  <form action="{% url 'user:account' %}" method="post">
+                    {% csrf_token %}
+                    <div class="panel-body">
+                      <div class="billing-details shop-cart-table">
+                        <input
+                          name="name"
+                          value="{{ user.username }}"
+                          type="text"
+                          placeholder="Your name here..."
+                        />
+                        <input
+                          name="email"
+                          value="{{ user.email }}"
+                          type="text"
+                          placeholder="Email address here..."
+                          readonly
+                        />
+                        <input
+                          name="phone"
+                          value="{{ userprofile.phone }}"
+                          type="text"
+                          placeholder="Phone here..."
+                        />
+
+                        <select name="country" class="custom-select mb-15">
+                          {% if userprofile.country %}
+                          <option value="{{ userprofile.country }}">
+                            {{ userprofile.country }}
+                          </option>
+                          {% else %}
+                          <option selected disabled>Country</option>
+                          {% endif %} {% for country in countries %}
+                          <option>{{ country.name }}</option>
+                          {% endfor %}
+                        </select>
+
+                        <select name="state" class="custom-select mb-15">
+                          {% if userprofile.state %}
+                          <option value="{{ userprofile.state }}">
+                            {{ userprofile.state }}
+                          </option>
+                          {% else %}
+                          <option selected disabled>State</option>
+                          {% endif %} {% for state in states %}
+                          <option>{{ state.name }}</option>
+                          {% endfor %}
+                        </select>
+
+                        <select name="city" class="custom-select mb-15">
+                          {% if userprofile.city %}
+                          <option value="{{ userprofile.city }}">
+                            {{ userprofile.city }}
+                          </option>
+                          {% else %}
+                          <option selected disabled>Town</option>
+                          {% endif %} {% for town in city %}
+                          <option>{{ town.name }}</option>
+                          {% endfor %}
+                        </select>
+
+                        <textarea
+                          name="address"
+                          placeholder="Your address here..."
+                          class="custom-textarea"
+                        >{{ userprofile.address }}</textarea
+                        >
+
+                        <button
+                          type="submit"
+                          data-text="place order"
+                          class="button-one submit-button mt-15"
+                        >
+                          Edit Details
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="panel mb-2">
+                <div class="my-account-menu">
+                  <a
+                    class="collapsed"
+                    data-bs-toggle="collapse"
+                    href="#my-billing"
+                  >
+                    Wallet History
+                  </a>
+                </div>
+                <div
+                  id="my-billing"
+                  class="panel-collapse collapse"
+                  data-bs-parent="#accordion"
+                >
+                  <div class="panel-body">
+                    <div class="billing-details shop-cart-table">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <!-- Add your table rows dynamically based on wallet history data -->
+                          {% for i in paymentwallet %}
+                          <tr>
+                            <td>{{i.created}}</td>
+                            <td>{{i.paymenttype}}</td>
+                            <td>
+                              <span
+                                style="
+                                  font-family: 'Arial', 'Helvetica', sans-serif;
+                                "
+                                >&#8377;</span
+                              >{{i.wallet}}
+                            </td>
+                          </tr>
+                          {% endfor %}
+                          <!-- Add more rows as needed -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel mb-2 mb-md-0">
+                <div class="my-account-menu">
+                  <a
+                    class="collapsed"
+                    data-bs-toggle="collapse"
+                    href="#my-order"
+                  >
+                    Order history and details
+                  </a>
+                </div>
+                <div
+                  id="my-order"
+                  class="panel-collapse collapse"
+                  data-bs-parent="#accordion"
+                >
+                  <div class="panel-body">
+                    <div class="our-order payment-details shop-cart-table">
+                      {% for order in orderproduct %}
+                      <div class="card w-70">
+                        <div
+                          class="card-body d-flex flex-column align-items-start"
+                        >
+                          <div class="mb-3">
+                            <a href="single-product.html"
+                              ><img
+                                style="height: 50px; width: 50px"
+                                src="{{ order.product.image.url }}"
+                                alt="image"
+                            /></a>
+                          </div>
+                          <div>
+                            <h5 class="card-title">
+                              {{ order.product.title }} x {{ order.quantity }}
+                            </h5>
+                            <p>
+                              Order Status:
+                              <strong>{{ order.order.status }}</strong>
+                            </p>
+
+                          {% if order.order.status == "Completed" and order.order.status != "Return" %}
+                            <a
+                              href="{% url 'user:invoice' order.order.id %}"
+                              id="pay-button2"
+                              class="button-one submit-button mt-15 mr-2"
+                              data-text="Invoice"
+                              type="submit"
+                              >Invoice</a
+                            >
+                            <a
+                              href="#"
+                              class="button-one submit-button mt-15 return-btn"
+                              data-text="Return"
+                              data-toggle="modal"
+                              data-target="#returnModal"
+                              data-order-id="{{ order.order.id }}"
+                              >Return</a
+                            >
+                          {% elif order.order.status == "Return" %}
+                            <a
+                              href="{% url 'shop:singleproduct' id=order.product.id %}"
+                              id="pay-button2"
+                              class="button-one submit-button mt-15"
+                              data-text="Shop Now"
+                              type="submit"
+                              >This item has been Returned</a
+                            >
+                          {% endif %}
+                          </div>
+                          <div class="mt-auto">
+                          {% if order.order.status != "Canceled" and order.order.status != "Completed" and order.order.status != "Return" %}
+                            <a
+                              href="{% url 'shop:singleproduct' order.product.id %}"
+                              id="pay-button2"
+                              class="button-one submit-button mt-15 mr-2"
+                              data-text="Product Details"
+                              type="submit"
+                              >Product Details</a
+                            >
+                            <a
+                              href=""
+                              class="button-one submit-button mt-15 cancel-btn"
+                              data-text="Cancel"
+                              data-toggle="modal"
+                              data-target="#cancelModal"
+                              data-order-id="{{ order.order.id }}"
+                              >Cancel</a
+                            >
+                          {% elif order.payment.payment_method == 'razorpay' and order.order.status == 'Canceled' %}
+                            <a
+                              href="{% url 'shop:singleproduct' id=order.product.id %}"
+                              id="pay-button2"
+                              class="button-one submit-button mt-15"
+                              data-text="Shop Now"
+                              type="submit"
+                              >This item has been canceled</a
+                            >
+                            <p>
+                              Your refund will be processed shortly. Check your
+                              mail.
+                            </p>
+                          {% elif order.payment.payment_method != 'razorpay' and order.order.status == 'Canceled' %}
+                            <a
+                              href="{% url 'shop:singleproduct' id=order.product.id %}"
+                              id="pay-button2"
+                              class="button-one submit-button mt-15"
+                              data-text="Shop Now"
+                              type="submit"
+                              >This item has been canceled</a
+                            >
+                          {% endif %}
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Cancel Modal -->
+                      <div
+                        class="modal fade"
+                        id="cancelModal"
+                        tabindex="-1"
+                        role="dialog"
+                        aria-labelledby="cancelModalLabel"
+                        aria-hidden="true"
+                      >
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="cancelModalLabel">
+                                Cancel Order
+                              </h5>
+                              <button
+                                type="button"
+                                class="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                              >
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <form
+                                action="{% url 'user:cancel_order' id=order.id %}"
+                                method="post"
+                              >
+                                {% csrf_token %}
+                                <!-- Cancel Reason Input Field -->
+                                <div class="form-group">
+                                  <label for="cancel_reason"
+                                    >Reason for Cancelation:</label
+                                  >
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    name="cancel_reason"
+                                    placeholder="Enter your reason"
+                                  />
+                                </div>
+                                <button
+                                  type="submit"
+                                  data-text="Cancel"
+                                  class="button-one submit-button"
+                                >
+                                  Cancel Order
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Return Modal -->
+                      <div
+                        class="modal fade"
+                        id="returnModal"
+                        tabindex="-1"
+                        role="dialog"
+                        aria-labelledby="returnModalLabel"
+                        aria-hidden="true"
+                      >
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="returnModalLabel">
+                                Return Order
+                              </h5>
+                              <button
+                                type="button"
+                                class="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                              >
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <form
+                                action="{% url 'user:order_return' id=order.id %}"
+                                method="post"
+                              >
+                                {% csrf_token %}
+                                <!-- Return Reason Input Field -->
+                                <div class="form-group">
+                                  <label for="return_reason"
+                                    >Reason for Return:</label
+                                  >
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    name="return_reason"
+                                    placeholder="Enter your reason"
+                                  />
+                                </div>
+                                <button
+                                  type="submit"
+                                  data-text="Submit"
+                                  class="button-one submit-button"
+                                >
+                                  Return
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="panel-group" id="accordion-2">
+              <div class="panel mb-2">
+                <div class="my-account-menu">
+                  <a data-bs-toggle="collapse" href="#my-payment-method">
+                    Change Password
+                  </a>
+                </div>
+                <div
+                  id="my-payment-method"
+                  class="panel-collapse collapse show"
+                  data-bs-parent="#accordion-2"
+                  style="background: #fff"
+                >
+                  <div class="panel-body" style="padding: 12px">
+                    <form action="{% url 'user:updatepassword'%}" method="post">
+                      {% csrf_token %} {% for field in form %}
+                      <div class="form-field">
+                        <label
+                          for="{{ field.id_for_label }}"
+                          style="font-weight: bold"
+                          >{{ field.label_tag }}</label
+                        >
+                        {{ field }} {% if field.help_text %}
+                        <small style="color: grey">{{ field.help_text }}</small>
+                        {% endif %} {% for error in field.errors %}
+                        <p style="color: red">{{ error }}</p>
+                        {% endfor %}
+                      </div>
+                      {% endfor %}
+                      <button
+                        type="submit"
+                        data-text="place order"
+                        class="button-one submit-button mt-15"
+                      >
+                        Edit Details
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <div class="panel mb-2 mb-md-0">
+                <div class="my-account-menu">
+                  <a class="collapsed" data-bs-toggle="collapse" href="#coupon">
+                    Coupon
+                  </a>
+                </div>
+                <div
+                  id="coupon"
+                  class="panel-collapse collapse"
+                  data-bs-parent="#accordion"
+                >
+                  <div class="panel-body">
+                    <div class="our-order payment-details shop-cart-table">
+                      {% for co in coupon %}
+                      <div class="card w-70">
+                        <div class="card-body">
+                          <h5 class="card-title">{{ co.offer_name }}</h5>
+                          <p>Coupon Id: {{ co.code }}</p>
+                          <a href="single-product.html">
+                            {% if co.image %}
+                            <img
+                              style="height: 71px; width: 550px"
+                              src="{{ co.image.url }}"
+                              alt="image"
+                            />
+                            {% endif %}
+                          </a>
+
+                          <button
+                            type="submit"
+                            data-text="add coupon"
+                            class="button-one submit-button mt-15"
+                          >
+                            Use Coupon
+                          </button>
+                        </div>
+                      </div>
+                      <br />
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- MY-ACCOUNT-CART-AREA END -->
+</div>
+<!-- WRAPPER END -->
+
+{%endblock%} 
+{%block footer%} 
+{%include 'footer.html'%}
 <script>
-    function cancelOrder(orderId) {
-        // Retrieve the reason entered by the user
-        var reason = document.getElementById('cancellationReason').value;
-        
-        // AJAX request to send the cancellation reason to the server
-        $.ajax({
-            type: 'POST',
-            url: '/user/cancel_order/' + orderId + '/',
-            data: {
-                'cancel_reason': reason,
-                // No need for CSRF token if Django's CSRF protection is already in place
-            },
-			beforeSend: function(xhr, settings) {
-				xhr.setRequestHeader("X-CSRFToken", $('[name="csrfmiddlewaretoken"]').val());
-			},
-            success: function(data) {
-                // Handle the success response, if needed
-                console.log('Order canceled successfully');
-            },
-            error: function(error) {
-                // Handle the error response, if needed
-                console.error('Error canceling order', error);
-            }
-        });
-
-        // Close the modal after processing the cancellation
-        $('#cancelModal').modal('hide');
-    }
+  // Handle the click event for the cancel button
+  $(".cancel-btn").on("click", function () {
+    var orderId = $(this).data("order-id");
+    $("#cancelModal form").attr(
+      "action",
+      '{% url "user:cancel_order" id=0 %}'.replace("0", orderId)
+    );
+  });
 </script>
 
-{%include 'footer.html'%}
+<script>
+  // Handle the click event for the return button
+  $(".return-btn").on("click", function () {
+    var orderId = $(this).data("order-id");
+
+    $("#returnModal form").attr(
+      "action",
+      '{% url "user:order_return" id=0 %}'.replace("0", orderId)
+    );
+  });
+</script>
+
 {%endblock%}

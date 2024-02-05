@@ -6,7 +6,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout,update_session_auth_hash
 from django.http import Http404
-from user.models import Coupon, UserProfile
+from home.models import Settings
+from user.models import Coupon, Payementwallet, UserProfile
 from order.models import Cart, Country, Order, OrderProduct, ShopCart, State, Town
 from order.views import _cart_id
 from .forms import SignupForm
@@ -20,6 +21,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
+from django.utils import timezone
+
 
 # User signup area
 class Signup(View):
@@ -149,10 +152,12 @@ class Account(View):
         form = PasswordChangeForm(user)
         orderproduct = OrderProduct.objects.filter(user=user)
         userprofile=UserProfile.objects.filter(user=user).first()
+        paymentwallet=Payementwallet.objects.filter(user=request.user)
         countries = Country.objects.all()
         states = State.objects.all()
         city = Town.objects.all()
         context={
+            'paymentwallet':paymentwallet,
             'user':user,
             'userprofile':userprofile,
             'countries':countries,
@@ -218,7 +223,6 @@ class UpdatePassword(View):
         else:
             form = PasswordChangeForm(request.user)
             return render(request, "myaccount.html", {"form": form})    
-
 
 #If the user forgot the password at the time of login
 class ForgotPassword(View):
@@ -290,7 +294,7 @@ class ResetPassword(View):
                 return redirect("/user/resetpassword/")
         return render(request, "resetpassword.html")
                 
-                
+#Cancel order                 
 class CancelOrder(View):
     template_name = 'myaccount.html'
 
@@ -308,7 +312,45 @@ class CancelOrder(View):
             orders.status = "Canceled"
             orders.save()
 
-            # Pass context to render function
-            return render(request, self.template_name, {'orders': orders})
+            return redirect(url)
 
+#Order return
+class OrderReturn(View):
+    def post(self, request, id):
+        url = request.META.get('HTTP_REFERER')
+        order = get_object_or_404(Order, id=id)
+
+        if request.method == 'POST':
+            reason = request.POST.get('return_reason')
+
+            if not reason:
+                messages.error(request, "Return reason is required.")
+                return redirect(url)
+
+            accepted_timestamp = order.update_at if order.update_at else order.create_at
+            seven_days_ago = accepted_timestamp + timezone.timedelta(days=7)
+            current_time = timezone.now()
+
+            if current_time > seven_days_ago:
+                messages.error(request, "You can only return the order within 7 days after it's accepted.")
+                return redirect(url)
+            else:
+                order.user_note = reason
+                order.status = "Return"
+                order.save()
+                return redirect(url)
             
+#Order Invoice             
+class Invoice(View):
+    template_name = "invoice.html"    
+    def get(self,request,id):
+        company = Settings.objects.filter(status='True').first()
+        order_products = get_object_or_404(Order ,id=id)
+        order= OrderProduct.objects.filter(order=order_products)
+
+        context = {
+                "order_products": order_products,
+                "company": company,
+                "order":order
+            }
+        return render(request,self.template_name,context)

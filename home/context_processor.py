@@ -1,6 +1,6 @@
 from order.models import Cart, ShopCart
 from order.views import _cart_id
-from shop.models import Subcategory
+from shop.models import Category, Subcategory
 from .models import Banners, Settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import AnonymousUser
@@ -28,11 +28,18 @@ def footer_data(request):
 
 def header_data(request):
     try:
-        menu_bar = Subcategory.objects.all()
-    except Subcategory.DoesNotExist:
-        menu_bar = None    
-        
-    return {'header_data':menu_bar}   
+        main_categories = Category.objects.all()  
+        header_data = []
+        for category in main_categories:
+            data = {
+                'category': category,
+                'subcategories': category.subcategories.all(),
+            }
+            header_data.append(data)
+    except Category.DoesNotExist:
+        header_data = None
+    
+    return {'header_data': header_data}
 
 
 
